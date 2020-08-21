@@ -1,0 +1,22 @@
+* Concerns
+** Sphinx works like so:
+
+Markdown files -> Many pretty outputs
+
+If it starts with markdown, why not just use markdown as the default format for
+borg? Is there any reason I need to create a new format when markdown already is
+in use?
+
+*** Resolution:
+
+Org Mode is More Powerful. Markdown doesn't have tags. Also org-mode still
+already exists as a text format. Just because I use it doesn't mean I'm
+contributing to bloat. To be even better, I might make it possible to use multiple
+
+** Doxygen works like so:
+
+Comments in source -> A few pretty outputs
+
+This makes sense to assimilate. Having documentation in the source is nice, but
+when just using existing entities, looking up their documentation in the central
+format is better.

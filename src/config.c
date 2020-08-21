@@ -74,6 +74,9 @@ int parseConfigFile() {
 	return 1;
 }
 
+void listConfig() {
+	printf("Load Path: %s\n", load_path);
+}
 
 int configMain(int argc, char *argv[])
 {
@@ -82,5 +85,15 @@ int configMain(int argc, char *argv[])
 		exit(1);
 	}
 
-	return 0;
+	char * command = argv[2];
+
+	int result = 0;
+	if (strcmp(command, "list") == 0) {
+		listConfig();
+	} else {
+		printf("Bad subcommand: %s\n", command);
+		result = 1;
+	}
+
+	return result;
 }

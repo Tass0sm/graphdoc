@@ -17,8 +17,9 @@ int main(int argc, char *argv[])
 
 	char * command = argv[1];
 
+	int result = 0;
 	if (strcmp(command, "define") == 0) {
-		defineMain(argc, argv);
+		result = defineMain(argc, argv);
 	} else if (strcmp(command, "config") == 0) {
 		configMain(argc, argv);
 	} else if (strcmp(command, "assimilate") == 0) {
@@ -28,5 +29,5 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	return 0;
+	return result;
 }

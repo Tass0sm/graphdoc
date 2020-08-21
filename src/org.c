@@ -2,9 +2,10 @@
 
 #define MAX_NAME_LENGTH 80
 
-org_entry getTopLevelEntry(char * name, FILE * pFile) {
+int getTopLevelEntry(char * name, FILE * pFile) {
 
 	char line[MAX_NAME_LENGTH];
+	int result = 1;
 
 	do {
 		fgets(line, MAX_NAME_LENGTH, pFile);
@@ -12,11 +13,11 @@ org_entry getTopLevelEntry(char * name, FILE * pFile) {
 		if (isTopLevelEntry(line) && strcmpToEnd(name, line, 2) == 0) {
 			printf("%s", line);
 			printTopLevelEntryContents(pFile);
-		}
 
+			result = 0;
+		}
 	} while (!feof(pFile));
 
-	org_entry result;
 	return result;
 }
 

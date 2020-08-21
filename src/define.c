@@ -11,8 +11,8 @@ int defineMain(int argc, char *argv[])
 
 	extern char load_path[256];
 	FILE * pFile = fopen(load_path, "r");
-	org_entry entry = getTopLevelEntry(name, pFile);
+	int result = getTopLevelEntry(name, pFile);
 	fclose(pFile);
 
-	return 0;
+	return result;
 }

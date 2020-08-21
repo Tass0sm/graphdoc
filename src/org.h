@@ -8,7 +8,7 @@ typedef struct {
 	char * docstring;
 } org_entry;
 
-org_entry getTopLevelEntry(char *, FILE *);
+int getTopLevelEntry(char *, FILE *);
 void printTopLevelEntryContents(FILE *);
 int isEntry(char *);
 int isTopLevelEntry(char *);
