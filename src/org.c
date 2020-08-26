@@ -1,6 +1,24 @@
+#ifndef ORG_H
+#define ORG_H
+
 #include "org.h"
 
 #define MAX_NAME_LENGTH 80
+
+int getAllTopLevelEntries(FILE * pFile) {
+
+	char line[MAX_NAME_LENGTH];
+
+	do {
+		fgets(line, MAX_NAME_LENGTH, pFile);
+
+		if (isTopLevelEntry(line)) {
+			printf("%s", line);
+		}
+	} while (!feof(pFile));
+
+	return 0;
+}
 
 int getTopLevelEntry(char * name, FILE * pFile) {
 
@@ -38,3 +56,6 @@ int isEntry(char * line) {
 int isTopLevelEntry(char * line) {
 	return line[0] == '*' && line[1] == ' ';
 }
+
+
+#endif /* ORG_H */

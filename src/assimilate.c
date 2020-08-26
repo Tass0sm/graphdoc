@@ -5,9 +5,13 @@ int assimilateMain(int argc, char *argv[])
 		exit(1);
 	}
 
-	char * name = argv[2];
+	char * type = argv[2];
 
-	printf("I am going to assimilate %s.\n", name);
+	if (strcmp(type, "rest")) {
+
+	} else {
+
+	}
 
 	return 0;
 }

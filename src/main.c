@@ -3,6 +3,7 @@
 
 #include "define.c"
 #include "config.c"
+#include "list.c"
 #include "assimilate.c"
 
 int main(int argc, char *argv[])
@@ -22,6 +23,8 @@ int main(int argc, char *argv[])
 		result = defineMain(argc, argv);
 	} else if (strcmp(command, "config") == 0) {
 		configMain(argc, argv);
+	} else if (strcmp(command, "list") == 0) {
+		listMain(argc, argv);
 	} else if (strcmp(command, "assimilate") == 0) {
 		assimilateMain(argc, argv);
 	} else {

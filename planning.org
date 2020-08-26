@@ -1,17 +1,22 @@
 * Concerns
 ** Sphinx works like so:
 
-Markdown files -> Many pretty outputs
+ReST files -> Many pretty outputs
 
-If it starts with markdown, why not just use markdown as the default format for
-borg? Is there any reason I need to create a new format when markdown already is
-in use?
+If it starts with ReST, why not just use ReST as the default format for borg? Is
+there any reason I need to create a new format when ReST already is in use?
 
 *** Resolution:
 
-Org Mode is More Powerful. Markdown doesn't have tags. Also org-mode still
-already exists as a text format. Just because I use it doesn't mean I'm
-contributing to bloat. To be even better, I might make it possible to use multiple
+Org Mode is More Powerful.
+
+Also, here's another property of the current situation which might make the
+decision more straight forward: Languages have their own preferred documentation
+format. Java has JavaDoc, Perl has POD, Python has ReST/Sphinx, C++ has
+Doxygen. All of these are nicely integrated with the language but with nothing
+else, except maybe nice looking presentation formats. Having a language agnostic
+tool should mean having a language agnostic format. Org also has babel to
+include source in the documentation, which is cool.
 
 ** Doxygen works like so:
 

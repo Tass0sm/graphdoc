@@ -8,7 +8,7 @@ int strcmpToEnd(char * str1, char * str2, int beg) {
 		c1 = str1[i];
 		c2 = str2[i + beg];
 
-		if (c1 <= 10 || c2 <= 10) {
+		if (c1 <= 10 && c2 <= 10) {
 			result = 0;
 		} else if (c1 != c2) {
 			result = 1;
