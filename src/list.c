@@ -1,4 +1,4 @@
-#include "org.c"
+#include <liboutline.h>
 
 int listMain(int argc, char *argv[]) {
 	if (argc < 3) {
@@ -9,17 +9,19 @@ int listMain(int argc, char *argv[]) {
 	char * type = argv[2];
 
 	extern char load_path[256];
-	FILE * pFile = fopen(load_path, "r");
+	outline_file * pFile = outline_open_file(load_path, "r");
 
 	int result = 0;
 	if (strcmp(type, "all") == 0) {
-		result = getAllTopLevelEntries(pFile);
+		while (result == 0) {
+			result = outline_seek_next_leveled_heading(pFile, 1);
+		}
 	} else {
 		printf("Bad type: %s\n", type);
 		result = 1;
 	}
 
-	fclose(pFile);
+	outline_free_file(pFile);
 
 	return result;
 }

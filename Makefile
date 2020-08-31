@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-lyaml
+CFLAGS=-lyaml -loutline
 
 SRC=$(wildcard src/*.c)
 
