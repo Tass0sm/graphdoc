@@ -14,9 +14,9 @@ int defineMain(int argc, char *argv[]) {
 
 	if (result == 1) {
 		printf("Nothing found.\n");
+	} else {
+		outline_print_to_next_leveled_heading(pFile, 1);
 	}
-
-	outline_print_to_next_leveled_heading(pFile, 1);
 
 	outline_free_file(pFile);
 
