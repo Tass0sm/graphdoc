@@ -3,15 +3,29 @@
 This program is a documentation manager. The name is a portmanteau of Book/Bib/Biblio and
 Org and also a pun on the Borg from Star Trek.
 
-## The Problem ##
+## Usage ##
 
-Here's how to look up documentation normally:
+Get documentation for some function:
+
+    borg define some-function
+    
+List all documented entities:
+
+    borg list all
+    
+Print the contents of the configuration file:
+
+    borg config list
+    
+## Reasoning ##
+
+Looking up documentation is not fun.
 
 1. Find the name of interest
 2. Open a web browser
 3. Search the internet for the name of interest.
 Or
-3. Locate the online documentation (Doxygen, Sphinx, etc.)
+3. Locate the online documentation (Doxygen, Sphinx, Some Static Website...)
 4. Search for the name of interest.
 
 Using a self documenting system is much nicer. Here's Emacs with Emacs lisp:
@@ -21,39 +35,25 @@ Using a self documenting system is much nicer. Here's Emacs with Emacs lisp:
 
         C-h f/v/o
 
-## My Response ##
+Borg lets me use local files to quickly locate documentation for any language or
+library. The files are also easily readable on their own. Other programs like
+editors can interface with Borg to make the experience faster still.
 
-I would prefer if I could download documentation for any language or library and
-store it in a human-readable, standard, simple format. Then I could use any
-program to look up names of interest in that open format. Since existing
-documentation sources have fine content, this program should also take
-documentation in existing formats and convert it to the preferred
-format. Another program might also integrate in extensible editors for smoother
-use while programming.
+See [borg-mode](https://github.com/Tass0sm/borg-mode.el ).
 
 ## My Implementation ##
 
-I chose to use org-mode for the open standard. Configuration is done with one
-YAML file. Right now things are simple but the program just linearly searches
-through one file specified in the configuration file for the specified name.
+Borg currently just uses the outline.el / org-mode format for documentation
+files. Configuration is done with one YAML file.
 
-## Examples ##
+## TODO ##
 
-Defining something:
+1. Doc Assimilation
 
-    borg define some-function
+In the future, I think [pandoc](https://pandoc.org ) will be used for converting
+existing documents to the preferred format and extra functionality will be added
+to help converting entire project documentation trees in one convenient
+motion. This should preserve cross references and things.
 
-Future utilities will include "assimilating" other documents and changing the
-configuration file more easily.
-
-## Goals ##
-
-* TODO A Completely Decided Format
-* TODO Ctags/Etags Integration
-* TODO Doxygen Conversion (From URL and Files)
-* TODO Sphinx Conversion (From URL and Files)
-
-## Concerns ##
-
-There may be something that already tries to manage documentation. I haven't
-been able to find it, though.
+2. Multiple documentation files.
+3. More org-mode feature compatibility?
