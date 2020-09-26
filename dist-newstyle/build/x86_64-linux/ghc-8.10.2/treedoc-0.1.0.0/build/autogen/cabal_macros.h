@@ -44,17 +44,6 @@
   (major1) == 1 && (major2) == 2 && (minor) <= 3)
 #endif /* MIN_VERSION_text */
 
-/* package treedoc-0.1.0.0 */
-#ifndef VERSION_treedoc
-#define VERSION_treedoc "0.1.0.0"
-#endif /* VERSION_treedoc */
-#ifndef MIN_VERSION_treedoc
-#define MIN_VERSION_treedoc(major1,major2,minor) (\
-  (major1) <  0 || \
-  (major1) == 0 && (major2) <  1 || \
-  (major1) == 0 && (major2) == 1 && (minor) <= 0)
-#endif /* MIN_VERSION_treedoc */
-
 /* tool gcc-10.2.0 */
 #ifndef TOOL_VERSION_gcc
 #define TOOL_VERSION_gcc "10.2.0"
@@ -154,8 +143,11 @@
   (major1) == 2 && (major2) == 35 && (minor) <= 0)
 #endif /* MIN_TOOL_VERSION_strip */
 
+#ifndef CURRENT_PACKAGE_KEY
+#define CURRENT_PACKAGE_KEY "treedoc-0.1.0.0-inplace"
+#endif /* CURRENT_PACKAGE_KEY */
 #ifndef CURRENT_COMPONENT_ID
-#define CURRENT_COMPONENT_ID "treedoc-0.1.0.0-inplace-treedoc"
+#define CURRENT_COMPONENT_ID "treedoc-0.1.0.0-inplace"
 #endif /* CURRENT_COMPONENT_ID */
 #ifndef CURRENT_PACKAGE_VERSION
 #define CURRENT_PACKAGE_VERSION "0.1.0.0"
