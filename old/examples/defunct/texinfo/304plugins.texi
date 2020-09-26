@@ -1,0 +1,121 @@
+\input texinfo
+@documentencoding UTF-8
+
+@ifnottex
+@paragraphindent 0
+@end ifnottex
+@titlepage
+@title Plugins
+@end titlepage
+
+@node Top
+@top Plugins
+
+Plugins usually add global-level functionality to Vue. There is no
+strictly defined scope for a plugin - there are typically several types
+of plugins:
+
+@enumerate 
+@item
+Add some global methods or properties.
+e.g.@ @uref{https://github.com/karol-f/vue-custom-element,vue-custom-element}
+
+@item
+Add one or more global assets: directives/filters/transitions etc.
+e.g.@ @uref{https://github.com/vuejs/vue-touch,vue-touch}
+
+@item
+Add some component options by global mixin.
+e.g.@ @uref{https://github.com/vuejs/vue-router,vue-router}
+
+@item
+Add some Vue instance methods by attaching them to Vue.prototype.
+
+@item
+A library that provides an API of its own, while at the same time
+injecting some combination of the above.
+e.g.@ @uref{https://github.com/vuejs/vue-router,vue-router}
+
+@end enumerate
+
+@node Using a Plugin
+@section Using a Plugin
+@anchor{#using-a-plugin}
+Use plugins by calling the @code{Vue.use()} global method. This has to
+be done before you start your app by calling @code{new Vue()}:
+
+@verbatim
+// calls `MyPlugin.install(Vue)`
+Vue.use(MyPlugin)
+
+new Vue({
+  //... options
+})
+@end verbatim
+
+You can optionally pass in some options:
+
+@verbatim
+Vue.use(MyPlugin, { someOption: true })
+@end verbatim
+
+@code{Vue.use} automatically prevents you from using the same plugin
+more than once, so calling it multiple times on the same plugin will
+install the plugin only once.
+
+Some plugins provided by Vue.js official plugins such as
+@code{vue-router} automatically calls @code{Vue.use()} if @code{Vue} is
+available as a global variable. However in a module environment such as
+CommonJS, you always need to call @code{Vue.use()} explicitly:
+
+@verbatim
+// When using CommonJS via Browserify or Webpack
+var Vue = require('vue')
+var VueRouter = require('vue-router')
+
+// Don't forget to call this
+Vue.use(VueRouter)
+@end verbatim
+
+Checkout
+@uref{https://github.com/vuejs/awesome-vue#components--libraries,awesome-vue}
+for a huge collection of community-contributed plugins and libraries.
+
+@node Writing a Plugin
+@section Writing a Plugin
+@anchor{#writing-a-plugin}
+A Vue.js plugin should expose an @code{install} method. The method will
+be called with the @code{Vue} constructor as the first argument, along
+with possible options:
+
+@verbatim
+MyPlugin.install = function (Vue, options) {
+  // 1. add global method or property
+  Vue.myGlobalMethod = function () {
+    // some logic ...
+  }
+
+  // 2. add a global asset
+  Vue.directive('my-directive', {
+    bind (el, binding, vnode, oldVnode) {
+      // some logic ...
+    }
+    ...
+  })
+
+  // 3. inject some component options
+  Vue.mixin({
+    created: function () {
+      // some logic ...
+    }
+    ...
+  })
+
+  // 4. add an instance method
+  Vue.prototype.$myMethod = function (methodOptions) {
+    // some logic ...
+  }
+}
+@end verbatim
+
+@bye

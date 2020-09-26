@@ -1,7 +1,6 @@
-# Borg #
+# Borg / Untitled Documentation Manager #
 
-This program is a documentation manager. The name is a portmanteau of Book/Bib/Biblio and
-Org and also a pun on the Borg from Star Trek.
+This program is a documentation manager. The name is undecided.
 
 ## Usage ##
 
@@ -13,22 +12,10 @@ List all documented entities:
 
     borg list all
     
-Print the contents of the configuration file:
-
-    borg config list
-    
 ## Reasoning ##
 
-Looking up documentation is not fun.
-
-1. Find the name of interest
-2. Open a web browser
-3. Search the internet for the name of interest.
-Or
-3. Locate the online documentation (Doxygen, Sphinx, Some Static Website...)
-4. Search for the name of interest.
-
-Using a self documenting system is much nicer. Here's Emacs with Emacs lisp:
+Looking up documentation online is not fun. Using a self documenting system is
+much nicer. For example, Emacs with Emacs lisp uses this workflow:
 
 1. Move cursor over whatever.
 2. Enter help command.

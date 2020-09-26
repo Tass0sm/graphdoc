@@ -6,8 +6,7 @@
 #include "list.c"
 #include "assimilate.c"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	if (argc < 2) {
 		printf("Supply arguments.\n");
 		exit(1);

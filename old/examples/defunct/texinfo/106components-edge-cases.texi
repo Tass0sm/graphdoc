@@ -1,0 +1,592 @@
+\input texinfo
+@documentencoding UTF-8
+
+@ifnottex
+@paragraphindent 0
+@end ifnottex
+@titlepage
+@title Handling Edge Cases
+@end titlepage
+
+@node Top
+@top Handling Edge Cases
+
+@quotation
+This page assumes you've already read the
+@uref{components.html,Components Basics}. Read that first if you are new
+to components.
+@end quotation
+All the features on this page document the handling of edge cases,
+meaning unusual situations that sometimes require bending Vue's rules a
+little. Note however, that they all have disadvantages or situations
+where they could be dangerous. These are noted in each case, so keep
+them in mind when deciding to use each feature.
+
+@node Element & Component Access
+@section Element & Component Access
+@anchor{#element-component-access}
+In most cases, it's best to avoid reaching into other component
+instances or manually manipulating DOM elements. There are cases,
+however, when it can be appropriate.
+
+@menu
+* Accessing the Root Instance::
+* Accessing the Parent Component Instance::
+* Accessing Child Component Instances & Child Elements::
+* Dependency Injection::
+@end menu
+
+@node Accessing the Root Instance
+@subsection Accessing the Root Instance
+@anchor{#accessing-the-root-instance}
+In every subcomponent of a @code{new Vue} instance, this root instance
+can be accessed with the @code{$root} property. For example, in this
+root instance:
+
+@verbatim
+// The root Vue instance
+new Vue({
+  data: {
+    foo: 1
+  },
+  computed: {
+    bar: function () { /* ... */ }
+  },
+  methods: {
+    baz: function () { /* ... */ }
+  }
+})
+@end verbatim
+
+All subcomponents will now be able to access this instance and use it as
+a global store:
+
+@verbatim
+// Get root data
+this.$root.foo
+
+// Set root data
+this.$root.foo = 2
+
+// Access root computed properties
+this.$root.bar
+
+// Call root methods
+this.$root.baz()
+@end verbatim
+
+This can be convenient for demos or very small apps with a handful of
+components. However, the pattern does not scale well to medium or
+large-scale applications, so we strongly recommend using Vuex to manage
+state in most cases.
+
+@node Accessing the Parent Component Instance
+@subsection Accessing the Parent Component Instance
+@anchor{#accessing-the-parent-component-instance}
+Similar to @code{$root}, the @code{$parent} property can be used to
+access the parent instance from a child. This can be tempting to reach
+for as a lazy alternative to passing data with a prop.
+
+In most cases, reaching into the parent makes your application more
+difficult to debug and understand, especially if you mutate data in the
+parent. When looking at that component later, it will be very difficult
+to figure out where that mutation came from.
+There are cases however, particularly shared component libraries, when
+this @emph{might} be appropriate. For example, in abstract components
+that interact with JavaScript APIs instead of rendering HTML, like these
+hypothetical Google Maps components:
+
+@verbatim
+<google-map>
+  <google-map-markers v-bind:places="iceCreamShops"></google-map-markers>
+</google-map>
+@end verbatim
+
+The @code{<google-map>} component might define a @code{map} property
+that all subcomponents need access to. In this case
+@code{<google-map-markers>} might want to access that map with something
+like @code{this.$parent.getMap}, in order to add a set of markers to it.
+You can see this pattern
+@uref{https://codesandbox.io/s/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-accessing-parent-component-instance,in
+action here}.
+
+Keep in mind, however, that components built with this pattern are still
+inherently fragile. For example, imagine we add a new
+@code{<google-map-region>} component and when
+@code{<google-map-markers>} appears within that, it should only render
+markers that fall within that region:
+
+@verbatim
+<google-map>
+  <google-map-region v-bind:shape="cityBoundaries">
+    <google-map-markers v-bind:places="iceCreamShops"></google-map-markers>
+  </google-map-region>
+</google-map>
+@end verbatim
+
+Then inside @code{<google-map-markers>} you might find yourself reaching
+for a hack like this:
+
+@verbatim
+var map = this.$parent.map || this.$parent.$parent.map
+@end verbatim
+
+This has quickly gotten out of hand. That's why to provide context
+information to descendent components arbitrarily deep, we instead
+recommend @ref{#Dependency-Injection,dependency injection}.
+
+@node Accessing Child Component Instances & Child Elements
+@subsection Accessing Child Component Instances & Child Elements
+@anchor{#accessing-child-component-instances-child-elements}
+Despite the existence of props and events, sometimes you might still
+need to directly access a child component in JavaScript. To achieve this
+you can assign a reference ID to the child component using the
+@code{ref} attribute. For example:
+
+@verbatim
+<base-input ref="usernameInput"></base-input>
+@end verbatim
+
+Now in the component where you've defined this @code{ref}, you can use:
+
+@verbatim
+this.$refs.usernameInput
+@end verbatim
+
+to access the @code{<base-input>} instance. This may be useful when you
+want to, for example, programmatically focus this input from a parent.
+In that case, the @code{<base-input>} component may similarly use a
+@code{ref} to provide access to specific elements inside it, such as:
+
+@verbatim
+<input ref="input">
+@end verbatim
+
+And even define methods for use by the parent:
+
+@verbatim
+methods: {
+  // Used to focus the input from the parent
+  focus: function () {
+    this.$refs.input.focus()
+  }
+}
+@end verbatim
+
+Thus allowing the parent component to focus the input inside
+@code{<base-input>} with:
+
+@verbatim
+this.$refs.usernameInput.focus()
+@end verbatim
+
+When @code{ref} is used together with @code{v-for}, the ref you get will
+be an array containing the child components mirroring the data source.
+
+@math{refs</code> are only populated after the component has been rendered, and they are not reactive. It is only meant as an escape hatch for direct child manipulation - you should avoid accessing <code>}refs
+from within templates or computed properties.
+
+@node Dependency Injection
+@subsection Dependency Injection
+@anchor{#dependency-injection}
+Earlier, when we described
+@ref{#Accessing-the-Parent-Component-Instance,Accessing the Parent
+Component Instance}, we showed an example like this:
+
+@verbatim
+<google-map>
+  <google-map-region v-bind:shape="cityBoundaries">
+    <google-map-markers v-bind:places="iceCreamShops"></google-map-markers>
+  </google-map-region>
+</google-map>
+@end verbatim
+
+In this component, all descendants of @code{<google-map>} needed access
+to a @code{getMap} method, in order to know which map to interact with.
+Unfortunately, using the @code{$parent} property didn't scale well to
+more deeply nested components. That's where dependency injection can be
+useful, using two new instance options: @code{provide} and
+@code{inject}.
+
+The @code{provide} options allows us to specify the data/methods we want
+to @strong{provide} to descendent components. In this case, that's the
+@code{getMap} method inside @code{<google-map>}:
+
+@verbatim
+provide: function () {
+  return {
+    getMap: this.getMap
+  }
+}
+@end verbatim
+
+Then in any descendants, we can use the @code{inject} option to receive
+specific properties we'd like to add to that instance:
+
+@verbatim
+inject: ['getMap']
+@end verbatim
+
+You can see the
+@uref{https://codesandbox.io/s/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-dependency-injection,full
+example here}. The advantage over using @code{$parent} is that we can
+access @code{getMap} in @emph{any} descendant component, without
+exposing the entire instance of @code{<google-map>}. This allows us to
+more safely keep developing that component, without fear that we might
+change/remove something that a child component is relying on. The
+interface between these components remains clearly defined, just as with
+@code{props}.
+
+In fact, you can think of dependency injection as sort of ``long-range
+props'', except:
+
+@itemize
+@item
+ancestor components don't need to know which descendants use the
+properties it provides
+@item
+descendant components don't need to know where injected properties are
+coming from
+@end itemize
+
+However, there are downsides to dependency injection. It couples
+components in your application to the way they're currently organized,
+making refactoring more difficult. Provided properties are also not
+reactive. This is by design, because using them to create a central data
+store scales just as poorly as using $root for the same purpose. If the
+properties you want to share are specific to your app, rather than
+generic, or if you ever want to update provided data inside ancestors,
+then that's a good sign that you probably need a real state management
+solution like Vuex instead.
+Learn more about dependency injection in
+@uref{https://vuejs.org/v2/api/#provide-inject,the API doc}.
+
+@node Programmatic Event Listeners
+@section Programmatic Event Listeners
+@anchor{#programmatic-event-listeners}
+So far, you've seen uses of @code{$emit}, listened to with @code{v-on},
+but Vue instances also offer other methods in its events interface. We
+can:
+
+@itemize
+@item
+Listen for an event with @code{$on(eventName, eventHandler)}
+@item
+Listen for an event only once with @code{$once(eventName, eventHandler)}
+@item
+Stop listening for an event with @code{$off(eventName, eventHandler)}
+@end itemize
+
+You normally won't have to use these, but they're available for cases
+when you need to manually listen for events on a component instance.
+They can also be useful as a code organization tool. For example, you
+may often see this pattern for integrating a 3rd-party library:
+
+@verbatim
+// Attach the datepicker to an input once
+// it's mounted to the DOM.
+mounted: function () {
+  // Pikaday is a 3rd-party datepicker library
+  this.picker = new Pikaday({
+    field: this.$refs.input,
+    format: 'YYYY-MM-DD'
+  })
+},
+// Right before the component is destroyed,
+// also destroy the datepicker.
+beforeDestroy: function () {
+  this.picker.destroy()
+}
+@end verbatim
+
+This has two potential issues:
+
+@itemize
+@item
+It requires saving the @code{picker} to the component instance, when
+it's possible that only lifecycle hooks need access to it. This isn't
+terrible, but it could be considered clutter.
+@item
+Our setup code is kept separate from our cleanup code, making it more
+difficult to programmatically clean up anything we set up.
+@end itemize
+
+You could resolve both issues with a programmatic listener:
+
+@verbatim
+mounted: function () {
+  var picker = new Pikaday({
+    field: this.$refs.input,
+    format: 'YYYY-MM-DD'
+  })
+
+  this.$once('hook:beforeDestroy', function () {
+    picker.destroy()
+  })
+}
+@end verbatim
+
+Using this strategy, we could even use Pikaday with several input
+elements, with each new instance automatically cleaning up after itself:
+
+@verbatim
+mounted: function () {
+  this.attachDatepicker('startDateInput')
+  this.attachDatepicker('endDateInput')
+},
+methods: {
+  attachDatepicker: function (refName) {
+    var picker = new Pikaday({
+      field: this.$refs[refName],
+      format: 'YYYY-MM-DD'
+    })
+
+    this.$once('hook:beforeDestroy', function () {
+      picker.destroy()
+    })
+  }
+}
+@end verbatim
+
+See
+@uref{https://codesandbox.io/s/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-programmatic-event-listeners,this
+example} for the full code. Note, however, that if you find yourself
+having to do a lot of setup and cleanup within a single component, the
+best solution will usually be to create more modular components. In this
+case, we'd recommend creating a reusable @code{<input-datepicker>}
+component.
+
+To learn more about programmatic listeners, check out the API for
+@uref{https://vuejs.org/v2/api/#Instance-Methods-Events,Events Instance
+Methods}.
+
+Note that Vue's event system is different from the browser's EventTarget
+API. Though they work similarly, @math{emit</code>, <code>}on, and $off
+are not aliases for dispatchEvent, addEventListener, and
+removeEventListener.
+
+@node Circular References
+@section Circular References
+@anchor{#circular-references}
+
+@menu
+* Recursive Components::
+* Circular References Between Components::
+@end menu
+
+@node Recursive Components
+@subsection Recursive Components
+@anchor{#recursive-components}
+Components can recursively invoke themselves in their own template.
+However, they can only do so with the @code{name} option:
+
+@verbatim
+name: 'unique-name-of-my-component'
+@end verbatim
+
+When you register a component globally using @code{Vue.component}, the
+global ID is automatically set as the component's @code{name} option.
+
+@verbatim
+Vue.component('unique-name-of-my-component', {
+  // ...
+})
+@end verbatim
+
+If you're not careful, recursive components can also lead to infinite
+loops:
+
+@verbatim
+name: 'stack-overflow',
+template: '<div><stack-overflow></stack-overflow></div>'
+@end verbatim
+
+A component like the above will result in a ``max stack size exceeded''
+error, so make sure recursive invocation is conditional (i.e.@ uses a
+@code{v-if} that will eventually be @code{false}).
+
+@node Circular References Between Components
+@subsection Circular References Between Components
+@anchor{#circular-references-between-components}
+Let's say you're building a file directory tree, like in Finder or File
+Explorer. You might have a @code{tree-folder} component with this
+template:
+
+@verbatim
+<p>
+  <span>{{ folder.name }}</span>
+  <tree-folder-contents :children="folder.children"/>
+</p>
+@end verbatim
+
+Then a @code{tree-folder-contents} component with this template:
+
+@verbatim
+<ul>
+  <li v-for="child in children">
+    <tree-folder v-if="child.children" :folder="child"/>
+    <span v-else>{{ child.name }}</span>
+  </li>
+</ul>
+@end verbatim
+
+When you look closely, you'll see that these components will actually be
+each other's descendent @emph{and} ancestor in the render tree - a
+paradox! When registering components globally with @code{Vue.component},
+this paradox is resolved for you automatically. If that's you, you can
+stop reading here.
+
+However, if you're requiring/importing components using a @strong{module
+system}, e.g.@ via Webpack or Browserify, you'll get an error:
+
+@verbatim
+Failed to mount component: template or render function not defined.
+@end verbatim
+
+To explain what's happening, let's call our components A and B. The
+module system sees that it needs A, but first A needs B, but B needs A,
+but A needs B, etc. It's stuck in a loop, not knowing how to fully
+resolve either component without first resolving the other. To fix this,
+we need to give the module system a point at which it can say, ``A needs
+B @emph{eventually}, but there's no need to resolve B first.''
+
+In our case, let's make that point the @code{tree-folder} component. We
+know the child that creates the paradox is the
+@code{tree-folder-contents} component, so we'll wait until the
+@code{beforeCreate} lifecycle hook to register it:
+
+@verbatim
+beforeCreate: function () {
+  this.$options.components.TreeFolderContents = require('./tree-folder-contents.vue').default
+}
+@end verbatim
+
+Or alternatively, you could use Webpack's asynchronous @code{import}
+when you register the component locally:
+
+@verbatim
+components: {
+  TreeFolderContents: () => import('./tree-folder-contents.vue')
+}
+@end verbatim
+
+Problem solved!
+
+@node Alternate Template Definitions
+@section Alternate Template Definitions
+@anchor{#alternate-template-definitions}
+
+@menu
+* Inline Templates::
+* X-Templates::
+@end menu
+
+@node Inline Templates
+@subsection Inline Templates
+@anchor{#inline-templates}
+When the @code{inline-template} special attribute is present on a child
+component, the component will use its inner content as its template,
+rather than treating it as distributed content. This allows more
+flexible template-authoring.
+
+@verbatim
+<my-component inline-template>
+  <div>
+    <p>These are compiled as the component's own template.</p>
+    <p>Not parent's transclusion content.</p>
+  </div>
+</my-component>
+@end verbatim
+
+Your inline template needs to be defined inside the DOM element to which
+Vue is attached.
+
+However, inline-template makes the scope of your templates harder to
+reason about. As a best practice, prefer defining templates inside the
+component using the template option or in a <template> element in a .vue
+file.
+
+@node X-Templates
+@subsection X-Templates
+@anchor{#x-templates}
+Another way to define templates is inside of a script element with the
+type @code{text/x-template}, then referencing the template by an id. For
+example:
+
+@verbatim
+<script type="text/x-template" id="hello-world-template">
+  <p>Hello hello hello</p>
+</script>
+@end verbatim
+
+@verbatim
+Vue.component('hello-world', {
+  template: '#hello-world-template'
+})
+@end verbatim
+
+Your x-template needs to be defined outside the DOM element to which Vue
+is attached.
+
+These can be useful for demos with large templates or in extremely small
+applications, but should otherwise be avoided, because they separate
+templates from the rest of the component definition.
+
+@node Controlling Updates
+@section Controlling Updates
+@anchor{#controlling-updates}
+Thanks to Vue's Reactivity system, it always knows when to update (if
+you use it correctly). There are edge cases, however, when you might
+want to force an update, despite the fact that no reactive data has
+changed. Then there are other cases when you might want to prevent
+unnecessary updates.
+
+@menu
+* Forcing an Update::
+* Cheap Static Components with v-once::
+@end menu
+
+@node Forcing an Update
+@subsection Forcing an Update
+@anchor{#forcing-an-update}
+If you find yourself needing to force an update in Vue, in 99.99% of
+cases, you've made a mistake somewhere.
+You may not have accounted for change detection caveats
+@uref{https://vuejs.org/v2/guide/list.html#Caveats,with arrays} or
+@uref{https://vuejs.org/v2/guide/list.html#Object-Change-Detection-Caveats,objects},
+or you may be relying on state that isn't tracked by Vue's reactivity
+system, e.g.@ with @code{data}.
+
+However, if you've ruled out the above and find yourself in this
+extremely rare situation of having to manually force an update, you can
+do so with @uref{../api/#vm-forceUpdate,@code{$forceUpdate}}.
+
+@node Cheap Static Components with v-once
+@subsection Cheap Static Components with @code{v-once}
+@anchor{#cheap-static-components-with-v-once}
+Rendering plain HTML elements is very fast in Vue, but sometimes you
+might have a component that contains @strong{a lot} of static content.
+In these cases, you can ensure that it's only evaluated once and then
+cached by adding the @code{v-once} directive to the root element, like
+this:
+
+@verbatim
+Vue.component('terms-of-service', {
+  template: `
+    <div v-once>
+      <h1>Terms of Service</h1>
+      ... a lot of static content ...
+    </div>
+  `
+})
+@end verbatim
+
+Once again, try not to overuse this pattern. While convenient in those
+rare cases when you have to render a lot of static content, it's simply
+not necessary unless you actually notice slow rendering -- plus, it
+could cause a lot of confusion later. For example, imagine another
+developer who's not familiar with v-once or simply misses it in the
+template. They might spend hours trying to figure out why the template
+isn't updating correctly.
+
+@bye

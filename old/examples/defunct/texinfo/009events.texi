@@ -1,0 +1,423 @@
+\input texinfo
+@documentencoding UTF-8
+
+@ifnottex
+@paragraphindent 0
+@end ifnottex
+@titlepage
+@title Event Handling
+@end titlepage
+
+@node Top
+@top Event Handling
+
+Learn how to handle events in a free Vue School lesson
+
+@node Listening to Events
+@section Listening to Events
+@anchor{#listening-to-events}
+We can use the @code{v-on} directive to listen to DOM events and run
+some JavaScript when they're triggered.
+
+For example:
+
+@verbatim
+<div id="example-1">
+  <button v-on:click="counter += 1">Add 1</button>
+  <p>The button above has been clicked {{ counter }} times.</p>
+</div>
+@end verbatim
+
+@verbatim
+var example1 = new Vue({
+  el: '#example-1',
+  data: {
+    counter: 0
+  }
+})
+@end verbatim
+
+Result:
+
+@{% raw %@}
+Add 1
+The button above has been clicked @{@{ counter @}@} times.
+@{% endraw %@}
+
+@node Method Event Handlers
+@section Method Event Handlers
+@anchor{#method-event-handlers}
+The logic for many event handlers will be more complex though, so
+keeping your JavaScript in the value of the @code{v-on} attribute isn't
+feasible. That's why @code{v-on} can also accept the name of a method
+you'd like to call.
+
+For example:
+
+@verbatim
+<div id="example-2">
+  <!-- `greet` is the name of a method defined below -->
+  <button v-on:click="greet">Greet</button>
+</div>
+@end verbatim
+
+@verbatim
+var example2 = new Vue({
+  el: '#example-2',
+  data: {
+    name: 'Vue.js'
+  },
+  // define methods under the `methods` object
+  methods: {
+    greet: function (event) {
+      // `this` inside methods points to the Vue instance
+      alert('Hello ' + this.name + '!')
+      // `event` is the native DOM event
+      if (event) {
+        alert(event.target.tagName)
+      }
+    }
+  }
+})
+
+// you can invoke methods in JavaScript too
+example2.greet() // => 'Hello Vue.js!'
+@end verbatim
+
+Result:
+
+@{% raw %@}
+Greet
+@{% endraw %@}
+
+@node Methods in Inline Handlers
+@section Methods in Inline Handlers
+@anchor{#methods-in-inline-handlers}
+Instead of binding directly to a method name, we can also use methods in
+an inline JavaScript statement:
+
+@verbatim
+<div id="example-3">
+  <button v-on:click="say('hi')">Say hi</button>
+  <button v-on:click="say('what')">Say what</button>
+</div>
+@end verbatim
+
+@verbatim
+new Vue({
+  el: '#example-3',
+  methods: {
+    say: function (message) {
+      alert(message)
+    }
+  }
+})
+@end verbatim
+
+Result: @{% raw %@}
+Say hi Say what
+@{% endraw %@}
+
+Sometimes we also need to access the original DOM event in an inline
+statement handler. You can pass it into a method using the special
+@code{$event} variable:
+
+@verbatim
+<button v-on:click="warn('Form cannot be submitted yet.', $event)">
+  Submit
+</button>
+@end verbatim
+
+@verbatim
+// ...
+methods: {
+  warn: function (message, event) {
+    // now we have access to the native event
+    if (event) {
+      event.preventDefault()
+    }
+    alert(message)
+  }
+}
+@end verbatim
+
+@node Event Modifiers
+@section Event Modifiers
+@anchor{#event-modifiers}
+It is a very common need to call @code{event.preventDefault()} or
+@code{event.stopPropagation()} inside event handlers. Although we can do
+this easily inside methods, it would be better if the methods can be
+purely about data logic rather than having to deal with DOM event
+details.
+
+To address this problem, Vue provides @strong{event modifiers} for
+@code{v-on}. Recall that modifiers are directive postfixes denoted by a
+dot.
+
+@itemize
+@item
+@code{.stop}
+@item
+@code{.prevent}
+@item
+@code{.capture}
+@item
+@code{.self}
+@item
+@code{.once}
+@item
+@code{.passive}
+@end itemize
+
+@verbatim
+<!-- the click event's propagation will be stopped -->
+<a v-on:click.stop="doThis"></a>
+
+<!-- the submit event will no longer reload the page -->
+<form v-on:submit.prevent="onSubmit"></form>
+
+<!-- modifiers can be chained -->
+<a v-on:click.stop.prevent="doThat"></a>
+
+<!-- just the modifier -->
+<form v-on:submit.prevent></form>
+
+<!-- use capture mode when adding the event listener -->
+<!-- i.e. an event targeting an inner element is handled here before being handled by that element -->
+<div v-on:click.capture="doThis">...</div>
+
+<!-- only trigger handler if event.target is the element itself -->
+<!-- i.e. not from a child element -->
+<div v-on:click.self="doThat">...</div>
+@end verbatim
+
+Order matters when using modifiers because the relevant code is
+generated in the same order. Therefore using
+@code{v-on:click.prevent.self} will prevent @strong{all clicks} while
+@code{v-on:click.self.prevent} will only prevent clicks on the element
+itself.
+@quotation
+New in 2.1.4+
+@end quotation
+
+@verbatim
+<!-- the click event will be triggered at most once -->
+<a v-on:click.once="doThis"></a>
+@end verbatim
+
+Unlike the other modifiers, which are exclusive to native DOM events,
+the @code{.once} modifier can also be used on
+@uref{components-custom-events.html,component events}. If you haven't
+read about components yet, don't worry about this for now.
+
+@quotation
+New in 2.3.0+
+@end quotation
+Vue also offers the @code{.passive} modifier, corresponding to
+@uref{https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Parameters,@code{addEventListener}'s
+@code{passive} option}.
+
+@verbatim
+<!-- the scroll event's default behavior (scrolling) will happen -->
+<!-- immediately, instead of waiting for `onScroll` to complete  -->
+<!-- in case it contains `event.preventDefault()`                -->
+<div v-on:scroll.passive="onScroll">...</div>
+@end verbatim
+
+The @code{.passive} modifier is especially useful for improving
+performance on mobile devices.
+
+Don't use @code{.passive} and @code{.prevent} together, because
+@code{.prevent} will be ignored and your browser will probably show you
+a warning. Remember, @code{.passive} communicates to the browser that
+you @emph{don't} want to prevent the event's default behavior.
+
+@node Key Modifiers
+@section Key Modifiers
+@anchor{#key-modifiers}
+When listening for keyboard events, we often need to check for specific
+keys. Vue allows adding key modifiers for @code{v-on} when listening for
+key events:
+
+@verbatim
+<!-- only call `vm.submit()` when the `key` is `Enter` -->
+<input v-on:keyup.enter="submit">
+@end verbatim
+
+You can directly use any valid key names exposed via
+@uref{https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values,@code{KeyboardEvent.key}}
+as modifiers by converting them to kebab-case.
+
+@verbatim
+<input v-on:keyup.page-down="onPageDown">
+@end verbatim
+
+In the above example, the handler will only be called if
+@code{$event.key} is equal to @code{'PageDown'}.
+
+@menu
+* Key Codes::
+@end menu
+
+@node Key Codes
+@subsection Key Codes
+@anchor{#key-codes}
+The use of @code{keyCode} events
+@uref{https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode,is
+deprecated} and may not be supported in new browsers.
+Using @code{keyCode} attributes is also permitted:
+
+@verbatim
+<input v-on:keyup.13="submit">
+@end verbatim
+
+Vue provides aliases for the most commonly used key codes when necessary
+for legacy browser support:
+
+@itemize
+@item
+@code{.enter}
+@item
+@code{.tab}
+@item
+@code{.delete} (captures both ``Delete'' and ``Backspace'' keys)
+@item
+@code{.esc}
+@item
+@code{.space}
+@item
+@code{.up}
+@item
+@code{.down}
+@item
+@code{.left}
+@item
+@code{.right}
+@end itemize
+
+A few keys (@code{.esc} and all arrow keys) have inconsistent @code{key}
+values in IE9, so these built-in aliases should be preferred if you need
+to support IE9.
+You can also @uref{../api/#keyCodes,define custom key modifier aliases}
+via the global @code{config.keyCodes} object:
+
+@verbatim
+// enable `v-on:keyup.f1`
+Vue.config.keyCodes.f1 = 112
+@end verbatim
+
+@node System Modifier Keys
+@section System Modifier Keys
+@anchor{#system-modifier-keys}
+@quotation
+New in 2.1.0+
+@end quotation
+You can use the following modifiers to trigger mouse or keyboard event
+listeners only when the corresponding modifier key is pressed:
+
+@itemize
+@item
+@code{.ctrl}
+@item
+@code{.alt}
+@item
+@code{.shift}
+@item
+@code{.meta}
+@end itemize
+
+@quotation
+Note: On Macintosh keyboards, meta is the command key (⌘). On Windows
+keyboards, meta is the Windows key (⊞). On Sun Microsystems keyboards,
+meta is marked as a solid diamond (◆). On certain keyboards,
+specifically MIT and Lisp machine keyboards and successors, such as the
+Knight keyboard, space-cadet keyboard, meta is labeled ``META''. On
+Symbolics keyboards, meta is labeled ``META'' or ``Meta''.
+@end quotation
+For example:
+
+@verbatim
+<!-- Alt + C -->
+<input v-on:keyup.alt.67="clear">
+
+<!-- Ctrl + Click -->
+<div v-on:click.ctrl="doSomething">Do something</div>
+@end verbatim
+
+Note that modifier keys are different from regular keys and when used
+with @code{keyup} events, they have to be pressed when the event is
+emitted. In other words, @code{keyup.ctrl} will only trigger if you
+release a key while holding down @code{ctrl}. It won't trigger if you
+release the @code{ctrl} key alone. If you do want such behaviour, use
+the @code{keyCode} for @code{ctrl} instead: @code{keyup.17}.
+
+@menu
+* exact Modifier::
+* Mouse Button Modifiers::
+@end menu
+
+@node exact Modifier
+@subsection @code{.exact} Modifier
+@anchor{#exact-modifier}
+@quotation
+New in 2.5.0+
+@end quotation
+The @code{.exact} modifier allows control of the exact combination of
+system modifiers needed to trigger an event.
+
+@verbatim
+<!-- this will fire even if Alt or Shift is also pressed -->
+<button v-on:click.ctrl="onClick">A</button>
+
+<!-- this will only fire when Ctrl and no other keys are pressed -->
+<button v-on:click.ctrl.exact="onCtrlClick">A</button>
+
+<!-- this will only fire when no system modifiers are pressed -->
+<button v-on:click.exact="onClick">A</button>
+@end verbatim
+
+@node Mouse Button Modifiers
+@subsection Mouse Button Modifiers
+@anchor{#mouse-button-modifiers}
+@quotation
+New in 2.2.0+
+@end quotation
+@itemize
+@item
+@code{.left}
+@item
+@code{.right}
+@item
+@code{.middle}
+@end itemize
+
+These modifiers restrict the handler to events triggered by a specific
+mouse button.
+
+@node Why Listeners in HTML?
+@section Why Listeners in HTML?
+@anchor{#why-listeners-in-html}
+You might be concerned that this whole event listening approach violates
+the good old rules about ``separation of concerns''. Rest assured -
+since all Vue handler functions and expressions are strictly bound to
+the ViewModel that's handling the current view, it won't cause any
+maintenance difficulty. In fact, there are several benefits in using
+@code{v-on}:
+
+@enumerate 
+@item
+It's easier to locate the handler function implementations within your
+JS code by skimming the HTML template.
+
+@item
+Since you don't have to manually attach event listeners in JS, your
+ViewModel code can be pure logic and DOM-free. This makes it easier to
+test.
+
+@item
+When a ViewModel is destroyed, all event listeners are automatically
+removed. You don't need to worry about cleaning it up yourself.
+
+@end enumerate
+
+@bye

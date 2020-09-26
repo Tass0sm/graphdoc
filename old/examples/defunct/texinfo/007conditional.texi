@@ -1,0 +1,228 @@
+\input texinfo
+@documentencoding UTF-8
+
+@ifnottex
+@paragraphindent 0
+@end ifnottex
+@titlepage
+@title Conditional Rendering
+@end titlepage
+
+@node Top
+@top Conditional Rendering
+
+Learn how conditional rendering works with a free lesson on Vue School
+
+@node v-if
+@section @code{v-if}
+@anchor{#v-if}
+The directive @code{v-if} is used to conditionally render a block. The
+block will only be rendered if the directive's expression returns a
+truthy value.
+
+@verbatim
+<h1 v-if="awesome">Vue is awesome!</h1>
+@end verbatim
+
+It is also possible to add an ``else block'' with @code{v-else}:
+
+@verbatim
+<h1 v-if="awesome">Vue is awesome!</h1>
+<h1 v-else>Oh no 😢</h1>
+@end verbatim
+
+@menu
+* Conditional Groups with v-if on <template>::
+* v-else::
+* v-else-if::
+* Controlling Reusable Elements with key::
+@end menu
+
+@node Conditional Groups with v-if on <template>
+@subsection Conditional Groups with @code{v-if} on @code{<template>}
+@anchor{#conditional-groups-with-v-if-on-template}
+Because @code{v-if} is a directive, it has to be attached to a single
+element. But what if we want to toggle more than one element? In this
+case we can use @code{v-if} on a @code{<template>} element, which serves
+as an invisible wrapper. The final rendered result will not include the
+@code{<template>} element.
+
+@verbatim
+<template v-if="ok">
+  <h1>Title</h1>
+  <p>Paragraph 1</p>
+  <p>Paragraph 2</p>
+</template>
+@end verbatim
+
+@node v-else
+@subsection @code{v-else}
+@anchor{#v-else}
+You can use the @code{v-else} directive to indicate an ``else block''
+for @code{v-if}:
+
+@verbatim
+<div v-if="Math.random() > 0.5">
+  Now you see me
+</div>
+<div v-else>
+  Now you don't
+</div>
+@end verbatim
+
+A @code{v-else} element must immediately follow a @code{v-if} or a
+@code{v-else-if} element - otherwise it will not be recognized.
+
+@node v-else-if
+@subsection @code{v-else-if}
+@anchor{#v-else-if}
+@quotation
+New in 2.1.0+
+@end quotation
+The @code{v-else-if}, as the name suggests, serves as an ``else if
+block'' for @code{v-if}. It can also be chained multiple times:
+
+@verbatim
+<div v-if="type === 'A'">
+  A
+</div>
+<div v-else-if="type === 'B'">
+  B
+</div>
+<div v-else-if="type === 'C'">
+  C
+</div>
+<div v-else>
+  Not A/B/C
+</div>
+@end verbatim
+
+Similar to @code{v-else}, a @code{v-else-if} element must immediately
+follow a @code{v-if} or a @code{v-else-if} element.
+
+@node Controlling Reusable Elements with key
+@subsection Controlling Reusable Elements with @code{key}
+@anchor{#controlling-reusable-elements-with-key}
+Vue tries to render elements as efficiently as possible, often re-using
+them instead of rendering from scratch. Beyond helping make Vue very
+fast, this can have some useful advantages. For example, if you allow
+users to toggle between multiple login types:
+
+@verbatim
+<template v-if="loginType === 'username'">
+  <label>Username</label>
+  <input placeholder="Enter your username">
+</template>
+<template v-else>
+  <label>Email</label>
+  <input placeholder="Enter your email address">
+</template>
+@end verbatim
+
+Then switching the @code{loginType} in the code above will not erase
+what the user has already entered. Since both templates use the same
+elements, the @code{<input>} is not replaced - just its
+@code{placeholder}.
+
+Check it out for yourself by entering some text in the input, then
+pressing the toggle button:
+
+@{% raw %@}
+
+@verbatim
+<template v-if="loginType === 'username'">
+  <label>Username</label>
+  <input placeholder="Enter your username">
+</template>
+<template v-else>
+  <label>Email</label>
+  <input placeholder="Enter your email address">
+</template>
+@end verbatim
+
+<button @@click=``toggleLoginType''>Toggle login type
+@{% endraw %@}
+
+This isn't always desirable though, so Vue offers a way for you to say,
+``These two elements are completely separate - don't re-use them.'' Add
+a @code{key} attribute with unique values:
+
+@verbatim
+<template v-if="loginType === 'username'">
+  <label>Username</label>
+  <input placeholder="Enter your username" key="username-input">
+</template>
+<template v-else>
+  <label>Email</label>
+  <input placeholder="Enter your email address" key="email-input">
+</template>
+@end verbatim
+
+Now those inputs will be rendered from scratch each time you toggle. See
+for yourself:
+
+@{% raw %@}
+
+@verbatim
+<template v-if="loginType === 'username'">
+  <label>Username</label>
+  <input placeholder="Enter your username" key="username-input">
+</template>
+<template v-else>
+  <label>Email</label>
+  <input placeholder="Enter your email address" key="email-input">
+</template>
+@end verbatim
+
+<button @@click=``toggleLoginType''>Toggle login type
+@{% endraw %@}
+
+Note that the @code{<label>} elements are still efficiently re-used,
+because they don't have @code{key} attributes.
+
+@node v-show
+@section @code{v-show}
+@anchor{#v-show}
+Another option for conditionally displaying an element is the
+@code{v-show} directive. The usage is largely the same:
+
+@verbatim
+<h1 v-show="ok">Hello!</h1>
+@end verbatim
+
+The difference is that an element with @code{v-show} will always be
+rendered and remain in the DOM; @code{v-show} only toggles the
+@code{display} CSS property of the element.
+
+Note that @code{v-show} doesn't support the @code{<template>} element,
+nor does it work with @code{v-else}.
+
+@node v-if vs v-show
+@section @code{v-if} vs @code{v-show}
+@anchor{#v-if-vs-v-show}
+@code{v-if} is ``real'' conditional rendering because it ensures that
+event listeners and child components inside the conditional block are
+properly destroyed and re-created during toggles.
+
+@code{v-if} is also @strong{lazy}: if the condition is false on initial
+render, it will not do anything - the conditional block won't be
+rendered until the condition becomes true for the first time.
+
+In comparison, @code{v-show} is much simpler - the element is always
+rendered regardless of initial condition, with CSS-based toggling.
+
+Generally speaking, @code{v-if} has higher toggle costs while
+@code{v-show} has higher initial render costs. So prefer @code{v-show}
+if you need to toggle something very often, and prefer @code{v-if} if
+the condition is unlikely to change at runtime.
+
+@node v-if with v-for
+@section @code{v-if} with @code{v-for}
+@anchor{#v-if-with-v-for}
+Using @code{v-if} and @code{v-for} together is @strong{not recommended}.
+See the @uref{/v2/style-guide/#Avoid-v-if-with-v-for-essential,style
+guide} for further information.
+When used together with @code{v-if}, @code{v-for} has a higher priority
+than @code{v-if}. See the list rendering guide for details.
+
+@bye

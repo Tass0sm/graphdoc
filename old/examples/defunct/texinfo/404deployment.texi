@@ -1,0 +1,224 @@
+\input texinfo
+@documentencoding UTF-8
+
+@ifnottex
+@paragraphindent 0
+@end ifnottex
+@titlepage
+@title Production Deployment
+@end titlepage
+
+@node Top
+@top Production Deployment
+
+@quotation
+Most of the tips below are enabled by default if you are using
+@uref{https://cli.vuejs.org,Vue CLI}. This section is only relevant if
+you are using a custom build setup.
+@end quotation
+
+@node Turn on Production Mode
+@section Turn on Production Mode
+@anchor{#turn-on-production-mode}
+During development, Vue provides a lot of warnings to help you with
+common errors and pitfalls. However, these warning strings become
+useless in production and bloat your app's payload size. In addition,
+some of these warning checks have small runtime costs that can be
+avoided in production mode.
+
+@menu
+* Without Build Tools::
+* With Build Tools::
+@end menu
+
+@node Without Build Tools
+@subsection Without Build Tools
+@anchor{#without-build-tools}
+If you are using the full build, i.e.@ directly including Vue via a
+script tag without a build tool, make sure to use the minified version
+(@code{vue.min.js}) for production. Both versions can be found in the
+@uref{installation.html#Direct-lt-script-gt-Include,Installation guide}.
+
+@node With Build Tools
+@subsection With Build Tools
+@anchor{#with-build-tools}
+When using a build tool like Webpack or Browserify, the production mode
+will be determined by @code{process.env.NODE_ENV} inside Vue's source
+code, and it will be in development mode by default. Both build tools
+provide ways to overwrite this variable to enable Vue's production mode,
+and warnings will be stripped by minifiers during the build. All
+@code{vue-cli} templates have these pre-configured for you, but it would
+be beneficial to know how it is done:
+
+@menu
+* Webpack::
+* Browserify::
+* Rollup::
+@end menu
+
+@node Webpack
+@subsubsection Webpack
+@anchor{#webpack}
+In Webpack 4+, you can use the @code{mode} option:
+
+@verbatim
+module.exports = {
+  mode: 'production'
+}
+@end verbatim
+
+But in Webpack 3 and earlier, you'll need to use
+@uref{https://webpack.js.org/plugins/define-plugin/,DefinePlugin}:
+
+@verbatim
+var webpack = require('webpack')
+
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production')
+    })
+  ]
+}
+@end verbatim
+
+@node Browserify
+@subsubsection Browserify
+@anchor{#browserify}
+@itemize
+@item
+Run your bundling command with the actual @code{NODE_ENV} environment
+variable set to @code{"production"}. This tells @code{vueify} to avoid
+including hot-reload and development related code.
+
+@item
+Apply a global @uref{https://github.com/hughsk/envify,envify} transform
+to your bundle. This allows the minifier to strip out all the warnings
+in Vue's source code wrapped in env variable conditional blocks. For
+example:
+
+@verbatim
+NODE_ENV=production browserify -g envify -e main.js | uglifyjs -c -m > build.js
+@end verbatim
+
+@item
+Or, using @uref{https://github.com/hughsk/envify,envify} with Gulp:
+
+@verbatim
+// Use the envify custom module to specify environment variables
+var envify = require('envify/custom')
+
+browserify(browserifyOptions)
+  .transform(vueify)
+  .transform(
+    // Required in order to process node_modules files
+    { global: true },
+    envify({ NODE_ENV: 'production' })
+  )
+  .bundle()
+@end verbatim
+
+@item
+Or, using @uref{https://github.com/hughsk/envify,envify} with Grunt and
+@uref{https://github.com/jmreidy/grunt-browserify,grunt-browserify}:
+
+@verbatim
+// Use the envify custom module to specify environment variables
+var envify = require('envify/custom')
+
+browserify: {
+  dist: {
+    options: {
+      // Function to deviate from grunt-browserify's default order
+      configure: b => b
+        .transform('vueify')
+        .transform(
+          // Required in order to process node_modules files
+          { global: true },
+          envify({ NODE_ENV: 'production' })
+        )
+        .bundle()
+    }
+  }
+}
+@end verbatim
+
+@end itemize
+
+@node Rollup
+@subsubsection Rollup
+@anchor{#rollup}
+Use
+[@@rollup/plugin-replace](https://github.com/rollup/plugins/tree/master/packages/replace):
+
+@verbatim
+const replace = require('@rollup/plugin-replace')
+
+rollup({
+  // ...
+  plugins: [
+    replace({
+      'process.env.NODE_ENV': JSON.stringify( 'production' )
+    })
+  ]
+}).then(...)
+@end verbatim
+
+@node Pre-Compiling Templates
+@section Pre-Compiling Templates
+@anchor{#pre-compiling-templates}
+When using in-DOM templates or in-JavaScript template strings, the
+template-to-render-function compilation is performed on the fly. This is
+usually fast enough in most cases, but is best avoided if your
+application is performance-sensitive.
+
+The easiest way to pre-compile templates is using
+@uref{single-file-components.html,Single-File Components} - the
+associated build setups automatically performs pre-compilation for you,
+so the built code contains the already compiled render functions instead
+of raw template strings.
+
+If you are using Webpack, and prefer separating JavaScript and template
+files, you can use
+@uref{https://github.com/ktsn/vue-template-loader,vue-template-loader},
+which also transforms the template files into JavaScript render
+functions during the build step.
+
+@node Extracting Component CSS
+@section Extracting Component CSS
+@anchor{#extracting-component-css}
+When using Single-File Components, the CSS inside components are
+injected dynamically as @code{<style>} tags via JavaScript. This has a
+small runtime cost, and if you are using server-side rendering it will
+cause a ``flash of unstyled content''. Extracting the CSS across all
+components into the same file will avoid these issues, and also result
+in better CSS minification and caching.
+
+Refer to the respective build tool documentations to see how it's done:
+
+@itemize
+@item
+@uref{https://vue-loader.vuejs.org/en/configurations/extract-css.html,Webpack
++ vue-loader} (the @code{vue-cli} webpack template has this
+pre-configured)
+@item
+@uref{https://github.com/vuejs/vueify#css-extraction,Browserify +
+vueify}
+@item
+@uref{https://vuejs.github.io/rollup-plugin-vue/#/en/2.3/?id=custom-handler,Rollup
++ rollup-plugin-vue}
+@end itemize
+
+@node Tracking Runtime Errors
+@section Tracking Runtime Errors
+@anchor{#tracking-runtime-errors}
+If a runtime error occurs during a component's render, it will be passed
+to the global @code{Vue.config.errorHandler} config function if it has
+been set. It might be a good idea to leverage this hook together with an
+error-tracking service like @uref{https://sentry.io,Sentry}, which
+provides @uref{https://sentry.io/for/vue/,an official integration} for
+Vue.
+
+@bye

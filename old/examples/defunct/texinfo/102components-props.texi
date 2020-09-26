@@ -1,0 +1,485 @@
+\input texinfo
+@documentencoding UTF-8
+
+@ifnottex
+@paragraphindent 0
+@end ifnottex
+@titlepage
+@title Props
+@end titlepage
+
+@node Top
+@top Props
+
+@quotation
+This page assumes you've already read the
+@uref{components.html,Components Basics}. Read that first if you are new
+to components.
+@end quotation
+Learn how component props work with a free lesson on Vue School
+
+@node Prop Casing camelCase vs kebab-case
+@section Prop Casing (camelCase vs kebab-case)
+@anchor{#prop-casing-camelcase-vs-kebab-case}
+HTML attribute names are case-insensitive, so browsers will interpret
+any uppercase characters as lowercase. That means when you're using
+in-DOM templates, camelCased prop names need to use their kebab-cased
+(hyphen-delimited) equivalents:
+
+@verbatim
+Vue.component('blog-post', {
+  // camelCase in JavaScript
+  props: ['postTitle'],
+  template: '<h3>{{ postTitle }}</h3>'
+})
+@end verbatim
+
+@verbatim
+<!-- kebab-case in HTML -->
+<blog-post post-title="hello!"></blog-post>
+@end verbatim
+
+Again, if you're using string templates, this limitation does not apply.
+
+@node Prop Types
+@section Prop Types
+@anchor{#prop-types}
+So far, we've only seen props listed as an array of strings:
+
+@verbatim
+props: ['title', 'likes', 'isPublished', 'commentIds', 'author']
+@end verbatim
+
+Usually though, you'll want every prop to be a specific type of value.
+In these cases, you can list props as an object, where the properties'
+names and values contain the prop names and types, respectively:
+
+@verbatim
+props: {
+  title: String,
+  likes: Number,
+  isPublished: Boolean,
+  commentIds: Array,
+  author: Object,
+  callback: Function,
+  contactsPromise: Promise // or any other constructor
+}
+@end verbatim
+
+This not only documents your component, but will also warn users in the
+browser's JavaScript console if they pass the wrong type. You'll learn
+much more about @ref{#Prop-Validation,type checks and other prop
+validations} further down this page.
+
+@node Passing Static or Dynamic Props
+@section Passing Static or Dynamic Props
+@anchor{#passing-static-or-dynamic-props}
+So far, you've seen props passed a static value, like in:
+
+@verbatim
+<blog-post title="My journey with Vue"></blog-post>
+@end verbatim
+
+You've also seen props assigned dynamically with @code{v-bind}, such as
+in:
+
+@verbatim
+<!-- Dynamically assign the value of a variable -->
+<blog-post v-bind:title="post.title"></blog-post>
+
+<!-- Dynamically assign the value of a complex expression -->
+<blog-post
+  v-bind:title="post.title + ' by ' + post.author.name"
+></blog-post>
+@end verbatim
+
+In the two examples above, we happen to pass string values, but
+@emph{any} type of value can actually be passed to a prop.
+
+@menu
+* Passing a Number::
+* Passing a Boolean::
+* Passing an Array::
+* Passing an Object::
+* Passing the Properties of an Object::
+@end menu
+
+@node Passing a Number
+@subsection Passing a Number
+@anchor{#passing-a-number}
+
+@verbatim
+<!-- Even though `42` is static, we need v-bind to tell Vue that -->
+<!-- this is a JavaScript expression rather than a string.       -->
+<blog-post v-bind:likes="42"></blog-post>
+
+<!-- Dynamically assign to the value of a variable. -->
+<blog-post v-bind:likes="post.likes"></blog-post>
+@end verbatim
+
+@node Passing a Boolean
+@subsection Passing a Boolean
+@anchor{#passing-a-boolean}
+
+@verbatim
+<!-- Including the prop with no value will imply `true`. -->
+<blog-post is-published></blog-post>
+
+<!-- Even though `false` is static, we need v-bind to tell Vue that -->
+<!-- this is a JavaScript expression rather than a string.          -->
+<blog-post v-bind:is-published="false"></blog-post>
+
+<!-- Dynamically assign to the value of a variable. -->
+<blog-post v-bind:is-published="post.isPublished"></blog-post>
+@end verbatim
+
+@node Passing an Array
+@subsection Passing an Array
+@anchor{#passing-an-array}
+
+@verbatim
+<!-- Even though the array is static, we need v-bind to tell Vue that -->
+<!-- this is a JavaScript expression rather than a string.            -->
+<blog-post v-bind:comment-ids="[234, 266, 273]"></blog-post>
+
+<!-- Dynamically assign to the value of a variable. -->
+<blog-post v-bind:comment-ids="post.commentIds"></blog-post>
+@end verbatim
+
+@node Passing an Object
+@subsection Passing an Object
+@anchor{#passing-an-object}
+
+@verbatim
+<!-- Even though the object is static, we need v-bind to tell Vue that -->
+<!-- this is a JavaScript expression rather than a string.             -->
+<blog-post
+  v-bind:author="{
+    name: 'Veronica',
+    company: 'Veridian Dynamics'
+  }"
+></blog-post>
+
+<!-- Dynamically assign to the value of a variable. -->
+<blog-post v-bind:author="post.author"></blog-post>
+@end verbatim
+
+@node Passing the Properties of an Object
+@subsection Passing the Properties of an Object
+@anchor{#passing-the-properties-of-an-object}
+If you want to pass all the properties of an object as props, you can
+use @code{v-bind} without an argument (@code{v-bind} instead of
+@code{v-bind:prop-name}). For example, given a @code{post} object:
+
+@verbatim
+post: {
+  id: 1,
+  title: 'My Journey with Vue'
+}
+@end verbatim
+
+The following template:
+
+@verbatim
+<blog-post v-bind="post"></blog-post>
+@end verbatim
+
+Will be equivalent to:
+
+@verbatim
+<blog-post
+  v-bind:id="post.id"
+  v-bind:title="post.title"
+></blog-post>
+@end verbatim
+
+@node One-Way Data Flow
+@section One-Way Data Flow
+@anchor{#one-way-data-flow}
+All props form a @strong{one-way-down binding} between the child
+property and the parent one: when the parent property updates, it will
+flow down to the child, but not the other way around. This prevents
+child components from accidentally mutating the parent's state, which
+can make your app's data flow harder to understand.
+
+In addition, every time the parent component is updated, all props in
+the child component will be refreshed with the latest value. This means
+you should @strong{not} attempt to mutate a prop inside a child
+component. If you do, Vue will warn you in the console.
+
+There are usually two cases where it's tempting to mutate a prop:
+
+@enumerate 
+@item
+@strong{The prop is used to pass in an initial value; the child
+component wants to use it as a local data property afterwards.} In this
+case, it's best to define a local data property that uses the prop as
+its initial value:
+@end enumerate
+
+@verbatim
+props: ['initialCounter'],
+data: function () {
+  return {
+    counter: this.initialCounter
+  }
+}
+@end verbatim
+
+@enumerate 2
+@item
+@strong{The prop is passed in as a raw value that needs to be
+transformed.} In this case, it's best to define a computed property
+using the prop's value:
+@end enumerate
+
+@verbatim
+props: ['size'],
+computed: {
+  normalizedSize: function () {
+    return this.size.trim().toLowerCase()
+  }
+}
+@end verbatim
+
+Note that objects and arrays in JavaScript are passed by reference, so
+if the prop is an array or object, mutating the object or array itself
+inside the child component @strong{will} affect parent state.
+
+@node Prop Validation
+@section Prop Validation
+@anchor{#prop-validation}
+Components can specify requirements for their props, such as the types
+you've already seen. If a requirement isn't met, Vue will warn you in
+the browser's JavaScript console. This is especially useful when
+developing a component that's intended to be used by others.
+
+To specify prop validations, you can provide an object with validation
+requirements to the value of @code{props}, instead of an array of
+strings. For example:
+
+@verbatim
+Vue.component('my-component', {
+  props: {
+    // Basic type check (`null` and `undefined` values will pass any type validation)
+    propA: Number,
+    // Multiple possible types
+    propB: [String, Number],
+    // Required string
+    propC: {
+      type: String,
+      required: true
+    },
+    // Number with a default value
+    propD: {
+      type: Number,
+      default: 100
+    },
+    // Object with a default value
+    propE: {
+      type: Object,
+      // Object or array defaults must be returned from
+      // a factory function
+      default: function () {
+        return { message: 'hello' }
+      }
+    },
+    // Custom validator function
+    propF: {
+      validator: function (value) {
+        // The value must match one of these strings
+        return ['success', 'warning', 'danger'].indexOf(value) !== -1
+      }
+    }
+  }
+})
+@end verbatim
+
+When prop validation fails, Vue will produce a console warning (if using
+the development build).
+
+Note that props are validated @strong{before} a component instance is
+created, so instance properties (e.g.@ @code{data}, @code{computed},
+etc) will not be available inside @code{default} or @code{validator}
+functions.
+
+@menu
+* Type Checks::
+@end menu
+
+@node Type Checks
+@subsection Type Checks
+@anchor{#type-checks}
+The @code{type} can be one of the following native constructors:
+
+@itemize
+@item
+String
+@item
+Number
+@item
+Boolean
+@item
+Array
+@item
+Object
+@item
+Date
+@item
+Function
+@item
+Symbol
+@end itemize
+
+In addition, @code{type} can also be a custom constructor function and
+the assertion will be made with an @code{instanceof} check. For example,
+given the following constructor function exists:
+
+@verbatim
+function Person (firstName, lastName) {
+  this.firstName = firstName
+  this.lastName = lastName
+}
+@end verbatim
+
+You could use:
+
+@verbatim
+Vue.component('blog-post', {
+  props: {
+    author: Person
+  }
+})
+@end verbatim
+
+to validate that the value of the @code{author} prop was created with
+@code{new Person}.
+
+@node Non-Prop Attributes
+@section Non-Prop Attributes
+@anchor{#non-prop-attributes}
+A non-prop attribute is an attribute that is passed to a component, but
+does not have a corresponding prop defined.
+
+While explicitly defined props are preferred for passing information to
+a child component, authors of component libraries can't always foresee
+the contexts in which their components might be used. That's why
+components can accept arbitrary attributes, which are added to the
+component's root element.
+
+For example, imagine we're using a 3rd-party @code{bootstrap-date-input}
+component with a Bootstrap plugin that requires a
+@code{data-date-picker} attribute on the @code{input}. We can add this
+attribute to our component instance:
+
+@verbatim
+<bootstrap-date-input data-date-picker="activated"></bootstrap-date-input>
+@end verbatim
+
+And the @code{data-date-picker="activated"} attribute will automatically
+be added to the root element of @code{bootstrap-date-input}.
+
+@menu
+* Replacing/Merging with Existing Attributes::
+* Disabling Attribute Inheritance::
+@end menu
+
+@node Replacing/Merging with Existing Attributes
+@subsection Replacing/Merging with Existing Attributes
+@anchor{#replacingmerging-with-existing-attributes}
+Imagine this is the template for @code{bootstrap-date-input}:
+
+@verbatim
+<input type="date" class="form-control">
+@end verbatim
+
+To specify a theme for our date picker plugin, we might need to add a
+specific class, like this:
+
+@verbatim
+<bootstrap-date-input
+  data-date-picker="activated"
+  class="date-picker-theme-dark"
+></bootstrap-date-input>
+@end verbatim
+
+In this case, two different values for @code{class} are defined:
+
+@itemize
+@item
+@code{form-control}, which is set by the component in its template
+@item
+@code{date-picker-theme-dark}, which is passed to the component by its
+parent
+@end itemize
+
+For most attributes, the value provided to the component will replace
+the value set by the component. So for example, passing
+@code{type="text"} will replace @code{type="date"} and probably break
+it! Fortunately, the @code{class} and @code{style} attributes are a
+little smarter, so both values are merged, making the final value:
+@code{form-control date-picker-theme-dark}.
+
+@node Disabling Attribute Inheritance
+@subsection Disabling Attribute Inheritance
+@anchor{#disabling-attribute-inheritance}
+If you do @strong{not} want the root element of a component to inherit
+attributes, you can set @code{inheritAttrs: false} in the component's
+options. For example:
+
+@verbatim
+Vue.component('my-component', {
+  inheritAttrs: false,
+  // ...
+})
+@end verbatim
+
+This can be especially useful in combination with the @code{$attrs}
+instance property, which contains the attribute names and values passed
+to a component, such as:
+
+@verbatim
+{
+  required: true,
+  placeholder: 'Enter your username'
+}
+@end verbatim
+
+With @code{inheritAttrs: false} and @code{$attrs}, you can manually
+decide which element you want to forward attributes to, which is often
+desirable for
+@uref{../style-guide/#Base-component-names-strongly-recommended,base
+components}:
+
+@verbatim
+Vue.component('base-input', {
+  inheritAttrs: false,
+  props: ['label', 'value'],
+  template: `
+    <label>
+      {{ label }}
+      <input
+        v-bind="$attrs"
+        v-bind:value="value"
+        v-on:input="$emit('input', $event.target.value)"
+      >
+    </label>
+  `
+})
+@end verbatim
+
+Note that @code{inheritAttrs: false} option does @strong{not} affect
+@code{style} and @code{class} bindings.
+This pattern allows you to use base components more like raw HTML
+elements, without having to care about which element is actually at its
+root:
+
+@verbatim
+<base-input
+  v-model="username"
+  required
+  placeholder="Enter your username"
+></base-input>
+@end verbatim
+
+@bye

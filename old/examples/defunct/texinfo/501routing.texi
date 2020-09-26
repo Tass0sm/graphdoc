@@ -1,0 +1,70 @@
+\input texinfo
+@documentencoding UTF-8
+
+@ifnottex
+@paragraphindent 0
+@end ifnottex
+@titlepage
+@title Routing
+@end titlepage
+
+@node Top
+@top Routing
+
+@node Official Router
+@section Official Router
+@anchor{#official-router}
+For most Single Page Applications, it's recommended to use the
+officially-supported
+@uref{https://github.com/vuejs/vue-router,vue-router library}. For more
+details, see vue-router's
+@uref{https://router.vuejs.org/,documentation}.
+
+@node Simple Routing From Scratch
+@section Simple Routing From Scratch
+@anchor{#simple-routing-from-scratch}
+If you only need very simple routing and do not wish to involve a
+full-featured router library, you can do so by dynamically rendering a
+page-level component like this:
+
+@verbatim
+const NotFound = { template: '<p>Page not found</p>' }
+const Home = { template: '<p>home page</p>' }
+const About = { template: '<p>about page</p>' }
+
+const routes = {
+  '/': Home,
+  '/about': About
+}
+
+new Vue({
+  el: '#app',
+  data: {
+    currentRoute: window.location.pathname
+  },
+  computed: {
+    ViewComponent () {
+      return routes[this.currentRoute] || NotFound
+    }
+  },
+  render (h) { return h(this.ViewComponent) }
+})
+@end verbatim
+
+Combined with the HTML5 History API, you can build a very basic but
+fully-functional client-side router. To see that in practice, check out
+@uref{https://github.com/chrisvfritz/vue-2.0-simple-routing-example,this
+example app}.
+
+@node Integrating 3rd-Party Routers
+@section Integrating 3rd-Party Routers
+@anchor{#integrating-3rd-party-routers}
+If there's a 3rd-party router you prefer to use, such as
+@uref{https://github.com/visionmedia/page.js,Page.js} or
+@uref{https://github.com/flatiron/director,Director}, integration is
+@uref{https://github.com/chrisvfritz/vue-2.0-simple-routing-example/compare/master...pagejs,similarly
+easy}. Here's a
+@uref{https://github.com/chrisvfritz/vue-2.0-simple-routing-example/tree/pagejs,complete
+example} using Page.js.
+
+@bye

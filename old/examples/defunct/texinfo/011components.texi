@@ -1,0 +1,633 @@
+\input texinfo
+@documentencoding UTF-8
+
+@ifnottex
+@paragraphindent 0
+@end ifnottex
+@titlepage
+@title Components Basics
+@end titlepage
+
+@node Top
+@top Components Basics
+
+Watch a free video course on Vue School
+
+@node Base Example
+@section Base Example
+@anchor{#base-example}
+Here's an example of a Vue component:
+
+@verbatim
+// Define a new component called button-counter
+Vue.component('button-counter', {
+  data: function () {
+    return {
+      count: 0
+    }
+  },
+  template: '<button v-on:click="count++">You clicked me {{ count }} times.</button>'
+})
+@end verbatim
+
+Components are reusable Vue instances with a name: in this case,
+@code{<button-counter>}. We can use this component as a custom element
+inside a root Vue instance created with @code{new Vue}:
+
+@verbatim
+<div id="components-demo">
+  <button-counter></button-counter>
+</div>
+@end verbatim
+
+@{% codeblock lang:js %@} new Vue(@{ el: `#components-demo' @}) @{%
+endcodeblock %@}
+
+@{% raw %@}
+@{% endraw %@}
+
+Since components are reusable Vue instances, they accept the same
+options as @code{new Vue}, such as @code{data}, @code{computed},
+@code{watch}, @code{methods}, and lifecycle hooks. The only exceptions
+are a few root-specific options like @code{el}.
+
+@node Reusing Components
+@section Reusing Components
+@anchor{#reusing-components}
+Components can be reused as many times as you want:
+
+@verbatim
+<div id="components-demo">
+  <button-counter></button-counter>
+  <button-counter></button-counter>
+  <button-counter></button-counter>
+</div>
+@end verbatim
+
+@{% raw %@}
+@{% endraw %@}
+
+Notice that when clicking on the buttons, each one maintains its own,
+separate @code{count}. That's because each time you use a component, a
+new @strong{instance} of it is created.
+
+@menu
+* data Must Be a Function::
+@end menu
+
+@node data Must Be a Function
+@subsection @code{data} Must Be a Function
+@anchor{#data-must-be-a-function}
+When we defined the @code{<button-counter>} component, you may have
+noticed that @code{data} wasn't directly provided an object, like this:
+
+@verbatim
+data: {
+  count: 0
+}
+@end verbatim
+
+Instead, @strong{a component's @code{data} option must be a function},
+so that each instance can maintain an independent copy of the returned
+data object:
+
+@verbatim
+data: function () {
+  return {
+    count: 0
+  }
+}
+@end verbatim
+
+If Vue didn't have this rule, clicking on one button would affect the
+data of @emph{all other instances}, like below:
+
+@{% raw %@}
+@{% endraw %@}
+
+@node Organizing Components
+@section Organizing Components
+@anchor{#organizing-components}
+It's common for an app to be organized into a tree of nested components:
+
+@float
+@image{/images/components,,,Component Tree,png}
+@caption{Component Tree}
+@end float
+
+For example, you might have components for a header, sidebar, and
+content area, each typically containing other components for navigation
+links, blog posts, etc.
+
+To use these components in templates, they must be registered so that
+Vue knows about them. There are two types of component registration:
+@strong{global} and @strong{local}. So far, we've only registered
+components globally, using @code{Vue.component}:
+
+@verbatim
+Vue.component('my-component-name', {
+  // ... options ...
+})
+@end verbatim
+
+Globally registered components can be used in the template of any root
+Vue instance (@code{new Vue}) created afterwards -- and even inside all
+subcomponents of that Vue instance's component tree.
+
+That's all you need to know about registration for now, but once you've
+finished reading this page and feel comfortable with its content, we
+recommend coming back later to read the full guide on
+@uref{components-registration.html,Component Registration}.
+
+@node Passing Data to Child Components with Props
+@section Passing Data to Child Components with Props
+@anchor{#passing-data-to-child-components-with-props}
+Earlier, we mentioned creating a component for blog posts. The problem
+is, that component won't be useful unless you can pass data to it, such
+as the title and content of the specific post we want to display. That's
+where props come in.
+
+Props are custom attributes you can register on a component. When a
+value is passed to a prop attribute, it becomes a property on that
+component instance. To pass a title to our blog post component, we can
+include it in the list of props this component accepts, using a
+@code{props} option:
+
+@verbatim
+Vue.component('blog-post', {
+  props: ['title'],
+  template: '<h3>{{ title }}</h3>'
+})
+@end verbatim
+
+A component can have as many props as you'd like and by default, any
+value can be passed to any prop. In the template above, you'll see that
+we can access this value on the component instance, just like with
+@code{data}.
+
+Once a prop is registered, you can pass data to it as a custom
+attribute, like this:
+
+@verbatim
+<blog-post title="My journey with Vue"></blog-post>
+<blog-post title="Blogging with Vue"></blog-post>
+<blog-post title="Why Vue is so fun"></blog-post>
+@end verbatim
+
+@{% raw %@}
+@{% endraw %@}
+
+In a typical app, however, you'll likely have an array of posts in
+@code{data}:
+
+@verbatim
+new Vue({
+  el: '#blog-post-demo',
+  data: {
+    posts: [
+      { id: 1, title: 'My journey with Vue' },
+      { id: 2, title: 'Blogging with Vue' },
+      { id: 3, title: 'Why Vue is so fun' }
+    ]
+  }
+})
+@end verbatim
+
+Then want to render a component for each one:
+
+@verbatim
+<blog-post
+  v-for="post in posts"
+  v-bind:key="post.id"
+  v-bind:title="post.title"
+></blog-post>
+@end verbatim
+
+Above, you'll see that we can use @code{v-bind} to dynamically pass
+props. This is especially useful when you don't know the exact content
+you're going to render ahead of time, like when
+@uref{https://codesandbox.io/s/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-component-blog-post-example,fetching
+posts from an API}.
+
+That's all you need to know about props for now, but once you've
+finished reading this page and feel comfortable with its content, we
+recommend coming back later to read the full guide on
+@uref{components-props.html,Props}.
+
+@node A Single Root Element
+@section A Single Root Element
+@anchor{#a-single-root-element}
+When building out a @code{<blog-post>} component, your template will
+eventually contain more than just the title:
+
+@verbatim
+<h3>{{ title }}</h3>
+@end verbatim
+
+At the very least, you'll want to include the post's content:
+
+@verbatim
+<h3>{{ title }}</h3>
+<div v-html="content"></div>
+@end verbatim
+
+If you try this in your template however, Vue will show an error,
+explaining that @strong{every component must have a single root
+element}. You can fix this error by wrapping the template in a parent
+element, such as:
+
+@verbatim
+<div class="blog-post">
+  <h3>{{ title }}</h3>
+  <div v-html="content"></div>
+</div>
+@end verbatim
+
+As our component grows, it's likely we'll not only need the title and
+content of a post, but also the published date, comments, and more.
+Defining a prop for each related piece of information could become very
+annoying:
+
+@verbatim
+<blog-post
+  v-for="post in posts"
+  v-bind:key="post.id"
+  v-bind:title="post.title"
+  v-bind:content="post.content"
+  v-bind:publishedAt="post.publishedAt"
+  v-bind:comments="post.comments"
+></blog-post>
+@end verbatim
+
+So this might be a good time to refactor the @code{<blog-post>}
+component to accept a single @code{post} prop instead:
+
+@verbatim
+<blog-post
+  v-for="post in posts"
+  v-bind:key="post.id"
+  v-bind:post="post"
+></blog-post>
+@end verbatim
+
+@verbatim
+Vue.component('blog-post', {
+  props: ['post'],
+  template: `
+    <div class="blog-post">
+      <h3>{{ post.title }}</h3>
+      <div v-html="post.content"></div>
+    </div>
+  `
+})
+@end verbatim
+
+The above example and some future ones use JavaScript's
+@uref{https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals,template
+literal} to make multi-line templates more readable. These are not
+supported by Internet Explorer (IE), so if you must support IE and are
+not transpiling (e.g.@ with Babel or TypeScript), use
+@uref{https://css-tricks.com/snippets/javascript/multiline-string-variables-in-javascript/,newline
+escapes} instead.
+Now, whenever a new property is added to @code{post} objects, it will
+automatically be available inside @code{<blog-post>}.
+
+@node Listening to Child Components Events
+@section Listening to Child Components Events
+@anchor{#listening-to-child-components-events}
+As we develop our @code{<blog-post>} component, some features may
+require communicating back up to the parent. For example, we may decide
+to include an accessibility feature to enlarge the text of blog posts,
+while leaving the rest of the page its default size:
+
+In the parent, we can support this feature by adding a
+@code{postFontSize} data property:
+
+@verbatim
+new Vue({
+  el: '#blog-posts-events-demo',
+  data: {
+    posts: [/* ... */],
+    postFontSize: 1
+  }
+})
+@end verbatim
+
+Which can be used in the template to control the font size of all blog
+posts:
+
+@verbatim
+<div id="blog-posts-events-demo">
+  <div :style="{ fontSize: postFontSize + 'em' }">
+    <blog-post
+      v-for="post in posts"
+      v-bind:key="post.id"
+      v-bind:post="post"
+    ></blog-post>
+  </div>
+</div>
+@end verbatim
+
+Now let's add a button to enlarge the text right before the content of
+every post:
+
+@verbatim
+Vue.component('blog-post', {
+  props: ['post'],
+  template: `
+    <div class="blog-post">
+      <h3>{{ post.title }}</h3>
+      <button>
+        Enlarge text
+      </button>
+      <div v-html="post.content"></div>
+    </div>
+  `
+})
+@end verbatim
+
+The problem is, this button doesn't do anything:
+
+@verbatim
+<button>
+  Enlarge text
+</button>
+@end verbatim
+
+When we click on the button, we need to communicate to the parent that
+it should enlarge the text of all posts. Fortunately, Vue instances
+provide a custom events system to solve this problem. The parent can
+choose to listen to any event on the child component instance with
+@code{v-on}, just as we would with a native DOM event:
+
+@verbatim
+<blog-post
+  ...
+  v-on:enlarge-text="postFontSize += 0.1"
+></blog-post>
+@end verbatim
+
+Then the child component can emit an event on itself by calling the
+built-in @uref{../api/#vm-emit,@strong{@code{$emit}} method}, passing
+the name of the event:
+
+@verbatim
+<button v-on:click="$emit('enlarge-text')">
+  Enlarge text
+</button>
+@end verbatim
+
+Thanks to the @code{v-on:enlarge-text="postFontSize += 0.1"} listener,
+the parent will receive the event and update @code{postFontSize} value.
+
+@{% raw %@}
+<div :style=``@{ fontSize: postFontSize + `em' @}''>
+@{% endraw %@}
+
+@menu
+* Emitting a Value With an Event::
+* Using v-model on Components::
+@end menu
+
+@node Emitting a Value With an Event
+@subsection Emitting a Value With an Event
+@anchor{#emitting-a-value-with-an-event}
+It's sometimes useful to emit a specific value with an event. For
+example, we may want the @code{<blog-post>} component to be in charge of
+how much to enlarge the text by. In those cases, we can use
+@code{$emit}'s 2nd parameter to provide this value:
+
+@verbatim
+<button v-on:click="$emit('enlarge-text', 0.1)">
+  Enlarge text
+</button>
+@end verbatim
+
+Then when we listen to the event in the parent, we can access the
+emitted event's value with @code{$event}:
+
+@verbatim
+<blog-post
+  ...
+  v-on:enlarge-text="postFontSize += $event"
+></blog-post>
+@end verbatim
+
+Or, if the event handler is a method:
+
+@verbatim
+<blog-post
+  ...
+  v-on:enlarge-text="onEnlargeText"
+></blog-post>
+@end verbatim
+
+Then the value will be passed as the first parameter of that method:
+
+@verbatim
+methods: {
+  onEnlargeText: function (enlargeAmount) {
+    this.postFontSize += enlargeAmount
+  }
+}
+@end verbatim
+
+@node Using v-model on Components
+@subsection Using @code{v-model} on Components
+@anchor{#using-v-model-on-components}
+Custom events can also be used to create custom inputs that work with
+@code{v-model}. Remember that:
+
+@verbatim
+<input v-model="searchText">
+@end verbatim
+
+does the same thing as:
+
+@verbatim
+<input
+  v-bind:value="searchText"
+  v-on:input="searchText = $event.target.value"
+>
+@end verbatim
+
+When used on a component, @code{v-model} instead does this:
+
+@verbatim
+<custom-input
+  v-bind:value="searchText"
+  v-on:input="searchText = $event"
+></custom-input>
+@end verbatim
+
+For this to actually work though, the @code{<input>} inside the
+component must:
+
+@itemize
+@item
+Bind the @code{value} attribute to a @code{value} prop
+@item
+On @code{input}, emit its own custom @code{input} event with the new
+value
+@end itemize
+
+Here's that in action:
+
+@verbatim
+Vue.component('custom-input', {
+  props: ['value'],
+  template: `
+    <input
+      v-bind:value="value"
+      v-on:input="$emit('input', $event.target.value)"
+    >
+  `
+})
+@end verbatim
+
+Now @code{v-model} should work perfectly with this component:
+
+@verbatim
+<custom-input v-model="searchText"></custom-input>
+@end verbatim
+
+That's all you need to know about custom component events for now, but
+once you've finished reading this page and feel comfortable with its
+content, we recommend coming back later to read the full guide on
+@uref{components-custom-events.html,Custom Events}.
+
+@node Content Distribution with Slots
+@section Content Distribution with Slots
+@anchor{#content-distribution-with-slots}
+Just like with HTML elements, it's often useful to be able to pass
+content to a component, like this:
+
+@verbatim
+<alert-box>
+  Something bad happened.
+</alert-box>
+@end verbatim
+
+Which might render something like:
+
+@{% raw %@}
+Something bad happened.
+@{% endraw %@}
+
+Fortunately, this task is made very simple by Vue's custom @code{<slot>}
+element:
+
+@verbatim
+Vue.component('alert-box', {
+  template: `
+    <div class="demo-alert-box">
+      <strong>Error!</strong>
+      <slot></slot>
+    </div>
+  `
+})
+@end verbatim
+
+As you'll see above, we just add the slot where we want it to go -- and
+that's it. We're done!
+
+That's all you need to know about slots for now, but once you've
+finished reading this page and feel comfortable with its content, we
+recommend coming back later to read the full guide on
+@uref{components-slots.html,Slots}.
+
+@node Dynamic Components
+@section Dynamic Components
+@anchor{#dynamic-components}
+Sometimes, it's useful to dynamically switch between components, like in
+a tabbed interface:
+
+@{% raw %@}
+@{@{ tab @}@}
+@{% endraw %@}
+
+The above is made possible by Vue's @code{<component>} element with the
+@code{is} special attribute:
+
+@verbatim
+<!-- Component changes when currentTabComponent changes -->
+<component v-bind:is="currentTabComponent"></component>
+@end verbatim
+
+In the example above, @code{currentTabComponent} can contain either:
+
+@itemize
+@item
+the name of a registered component, or
+@item
+a component's options object
+@end itemize
+
+See
+@uref{https://codesandbox.io/s/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-dynamic-components,this
+example} to experiment with the full code, or
+@uref{https://codesandbox.io/s/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-dynamic-components-with-binding,this
+version} for an example binding to a component's options object, instead
+of its registered name.
+
+Keep in mind that this attribute can be used with regular HTML elements,
+however they will be treated as components, which means all attributes
+@strong{will be bound as DOM attributes}. For some properties such as
+@code{value} to work as you would expect, you will need to bind them
+using the @uref{../api/#v-bind,@code{.prop} modifier}.
+
+That's all you need to know about dynamic components for now, but once
+you've finished reading this page and feel comfortable with its content,
+we recommend coming back later to read the full guide on
+@uref{components-dynamic-async.html,Dynamic & Async Components}.
+
+@node DOM Template Parsing Caveats
+@section DOM Template Parsing Caveats
+@anchor{#dom-template-parsing-caveats}
+Some HTML elements, such as @code{<ul>}, @code{<ol>}, @code{<table>} and
+@code{<select>} have restrictions on what elements can appear inside
+them, and some elements such as @code{<li>}, @code{<tr>}, and
+@code{<option>} can only appear inside certain other elements.
+
+This will lead to issues when using components with elements that have
+such restrictions. For example:
+
+@verbatim
+<table>
+  <blog-post-row></blog-post-row>
+</table>
+@end verbatim
+
+The custom component @code{<blog-post-row>} will be hoisted out as
+invalid content, causing errors in the eventual rendered output.
+Fortunately, the @code{is} special attribute offers a workaround:
+
+@verbatim
+<table>
+  <tr is="blog-post-row"></tr>
+</table>
+@end verbatim
+
+It should be noted that @strong{this limitation does @emph{not} apply if
+you are using string templates from one of the following sources}:
+
+@itemize
+@item
+String templates (e.g.@ @code{template: '...'})
+@item
+@uref{single-file-components.html,Single-file (@code{.vue}) components}
+@item
+@uref{components-edge-cases.html#X-Templates,@code{<script type="text/x-template">}}
+@end itemize
+
+That's all you need to know about DOM template parsing caveats for now
+-- and actually, the end of Vue's @emph{Essentials}. Congratulations!
+There's still more to learn, but first, we recommend taking a break to
+play with Vue yourself and build something fun.
+
+Once you feel comfortable with the knowledge you've just digested, we
+recommend coming back to read the full guide on
+@uref{components-dynamic-async.html,Dynamic & Async Components}, as well
+as the other pages in the Components In-Depth section of the sidebar.
+
+@bye
