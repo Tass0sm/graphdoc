@@ -53,16 +53,22 @@ extra-source-files:  CHANGELOG.md
 
 library
   -- Modules exported by the library.
-  exposed-modules:     Treedoc, Treedoc.Readers
+  exposed-modules:     Treedoc
+                     , Treedoc.Readers
 
   -- Modules included in this library but not exported.
-  other-modules:       Treedoc.Definition, Treedoc.GenericMarkdown.Reader
+  other-modules:       Treedoc.Definition
+                     , Treedoc.Util
+                     , Treedoc.GenericMarkdown.Reader
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
 
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.14 && <4.15, text >=1.2 && <1.3, containers >=0.6 && <0.7
+  build-depends:       base >=4.14 && <4.15
+                     , text >=1.2 && <1.3
+                     , containers >=0.6 && <0.7
+                     , directory
 
   -- Directories containing source files.
   hs-source-dirs:      src
