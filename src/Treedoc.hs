@@ -1,4 +1,4 @@
 module Treedoc
-  ( module Treedoc.Definition ) where
+  ( module Treedoc.Readers ) where
 
-import Treedoc.Definition
+import Treedoc.Readers

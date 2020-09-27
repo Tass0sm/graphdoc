@@ -308,24 +308,14 @@ How is the "toc_tree" directive parsed and understood by sphinx? Lets look:  htm
 
 * The Source Tree:
 
-** src/
+** src-exe/
 *** Main.hs        -- Main file for executable
+
+** src/
 *** Treedoc.hs     -- Main file for library
 *** Definitions.hs -- Contains definitions for all readers and writers.
-
-#+BEGIN_SRC haskell
-
-import Data.Text
-import Data.Tree
-import Text.Pandoc
-
-type TextTree = Tree Text
-
-type DocTree
-
-#+END_SRC
-
-**** Texinfo -- Everything for texinfo interaction
+*** Util.hs        -- Utilities for cleaner functions.
+**** Texinfo/ -- Everything for texinfo interaction
 
 I put the format in folders first (instead of readers/writers folders), because
 people looking through the source will be more interested in what can be done
@@ -335,21 +325,8 @@ may not expect to find somewhere else, finding everything related to Texinfo
 becomes difficult.
 
 ***** Reader.hs -- Read a texinfo file into a tree of documentation nodes.
-
-#+BEGIN_SRC haskell
-
--- Pure Code:
-
-
-
--- Impure Code:
-
-
-
-#+END_SRC
-
 ***** Writer.hs -- Write a tree of documentation nodes into a texinfo file.
-**** Generic Markdown -- ditto
+**** GenericMarkdown/ -- ditto
 
 Generic Markdown has no intrinsic ordering, so this format only uses the
 directory tree structure for building a tree, and other ordering for files is
