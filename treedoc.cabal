@@ -55,11 +55,13 @@ library
   -- Modules exported by the library.
   exposed-modules:     Treedoc
                      , Treedoc.Readers
+                     , Treedoc.Writers
 
   -- Modules included in this library but not exported.
   other-modules:       Treedoc.Definition
                      , Treedoc.Util
                      , Treedoc.GenericMarkup.Reader
+                     , Treedoc.GenericMarkup.Writer
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:

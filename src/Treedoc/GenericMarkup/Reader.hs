@@ -5,18 +5,19 @@ module Treedoc.GenericMarkup.Reader
 
 import qualified Data.Text as T
 import qualified Data.Tree as Tree
-import Treedoc.Util
 import Treedoc.Definition
+import Treedoc.Util
 
 -- Pure Code:
 
 -- Impure Code:
 
-unfolder :: Unfolder
+unfolder :: FilePath -> IO (DocSource, [FilePath])
 unfolder path = do
   contents <- saferReadFile path
   subFiles <- saferListDirectory path
-  return (contents, subFiles)
+  let name = getFileName path in
+    return ((name, contents), subFiles)
 
-readIntoTree :: TreeReader
+readIntoTree :: FilePath -> IO (DocTree)
 readIntoTree path = (Tree.unfoldTreeM_BF unfolder) path

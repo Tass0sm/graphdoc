@@ -1,6 +1,7 @@
 module Treedoc.Util
   ( saferListDirectory
-  , saferReadFile      ) where
+  , saferReadFile
+  , getFileName ) where
 
 import qualified Data.Text as T
 import System.Directory

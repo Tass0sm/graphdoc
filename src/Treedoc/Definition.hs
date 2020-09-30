@@ -1,19 +1,13 @@
 module Treedoc.Definition
-  ( TextTree
-  , Unfolder
-  , TreeReader
-  , TreeWriter ) where
+  ( DocSource
+  , DocTree ) where
 
 import Data.Text
 import Data.Tree
-import System.Directory
 
-type TextTree   = Tree Text
+type DocSource = (String, Text)
+type DocTree = Tree DocSource
 
 -- Pure Code:
 
 -- Impure Code:
-
-type Unfolder   = FilePath -> IO (Text, [FilePath])
-type TreeReader = FilePath -> IO (TextTree)
-type TreeWriter = TextTree -> FilePath -> IO ()

@@ -7,7 +7,5 @@ import Treedoc
 
 main :: IO ()
 main = do
-  args <- getArgs
-  tree <- readIntoTree $ head args
-  let strTree = fmap T.unpack tree in
-    putStr $ drawTree strTree
+  tree <- readIntoTree "data"
+  writeFromTree "example" tree
