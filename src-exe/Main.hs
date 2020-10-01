@@ -7,5 +7,6 @@ import Treedoc
 
 main :: IO ()
 main = do
-  tree <- readIntoTree "data"
-  writeFromTree "example" tree
+  args <- getArgs
+  tree <- readIntoTree $ head args
+  writeFromTree (head $ tail args) tree

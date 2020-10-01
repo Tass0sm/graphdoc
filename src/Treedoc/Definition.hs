@@ -5,9 +5,9 @@ module Treedoc.Definition
 import Data.Text
 import Data.Tree
 
+-- Pure Code:
+
 type DocSource = (String, Text)
 type DocTree = Tree DocSource
-
--- Pure Code:
 
 -- Impure Code:
