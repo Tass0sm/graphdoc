@@ -1,6 +1,4 @@
 module Treedoc
-  ( module Treedoc.Readers
-  , module Treedoc.Writers ) where
+  ( module Treedoc.App ) where
 
-import Treedoc.Readers
-import Treedoc.Writers
+import Treedoc.App

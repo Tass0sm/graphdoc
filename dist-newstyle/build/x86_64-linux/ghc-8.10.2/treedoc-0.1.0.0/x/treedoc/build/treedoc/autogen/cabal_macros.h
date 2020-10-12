@@ -33,6 +33,17 @@
   (major1) == 0 && (major2) == 6 && (minor) <= 2)
 #endif /* MIN_VERSION_containers */
 
+/* package pandoc-2.10.1 */
+#ifndef VERSION_pandoc
+#define VERSION_pandoc "2.10.1"
+#endif /* VERSION_pandoc */
+#ifndef MIN_VERSION_pandoc
+#define MIN_VERSION_pandoc(major1,major2,minor) (\
+  (major1) <  2 || \
+  (major1) == 2 && (major2) <  10 || \
+  (major1) == 2 && (major2) == 10 && (minor) <= 1)
+#endif /* MIN_VERSION_pandoc */
+
 /* package text-1.2.3.2 */
 #ifndef VERSION_text
 #define VERSION_text "1.2.3.2"

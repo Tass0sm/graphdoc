@@ -304,15 +304,30 @@ output it to a new format.
 
 How is the "toc_tree" directive parsed and understood by sphinx? Lets look:  html
 
-
-
 * The Source Tree:
-
+  
 ** src-exe/
 *** Main.hs        -- Main file for executable
 
 ** src/
 *** Treedoc.hs     -- Main file for library
+
+
+
+
+
+
+
+
+*** Treedoc/
+**** Converter.hs
+**** Util.hs
+**** Formats/
+***** GenericMarkup.hs
+***** Texinfo.hs
+***** Sphinx.hs
+
+    
 *** Definitions.hs -- Contains definitions for all readers and writers.
 *** Util.hs        -- Utilities for cleaner functions.
 **** Texinfo/ -- Everything for texinfo interaction
@@ -335,3 +350,46 @@ done alphabetically or by date.
 ***** Reader.hs -- Recursively read a directory of markdown files into a tree of documentation nodes.
 ***** Writer.hs -- Write a tree of documentation nodes into a directory of markdown files.
 **** 
+* Summarized Layout
+
+#+BEGIN_SRC haskell
+  main = do
+    -- Read tree of input sources in their original order. The nodes of the tree
+    -- are just tuples of the source's name, and the source's original
+    -- content. Processing of the content comes in a seperate step.
+    tree <- readIntoTree_GM "source-path"
+    -- Process sources. This will consist of converting original blocks of source
+    -- markup text to new text in another markup format. This will also write
+    -- intermediate content for non-leaf nodes to stitch together the leaf
+    -- content.
+
+    -- The structure of sources is encoded in the tree. The shape of the tree does
+    -- not change. The markup in each node is changed by pandoc, and extra
+    -- processing on non-leaves or headers to leaves is handled by treedoc.
+    let converter = makeConverter treedoc_opts pandoc_opts
+    let newTree = fmap converter tree
+
+    -- Write processed tree to a desired location on the disk. Write tree
+    -- according to the rules of the output format.
+    writeFromTree_TI "output-path" newTree
+#+END_SRC
+
+* Revision One
+
+  Overhaul from a Top-Down Perspective
+
+  Pandoc has a design, where its primary functionality is completely wrapped in
+  one top level function, where the inputs are all grouped into an Opt data
+  record.
+
+  This function breaks apart the options object opt, and call the correct
+  choices for pure functions to do the conversion. If I can write treedoc in a
+  similar way, so that I can use the full capability of pandoc's top level
+  function, I think the whole architecure of the program would be cleaner and
+  easier to write.
+
+* Usage
+
+#+BEGIN_SRC shell
+  treedoc [options] (--pandoc-options | -p) [pandoc-options] input-dir output-dir  
+#+END_SRC

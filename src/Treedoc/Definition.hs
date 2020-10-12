@@ -1,13 +1,14 @@
 module Treedoc.Definition
-  ( DocSource
-  , DocTree ) where
+  ( Format(..) ) where
 
-import Data.Text
-import Data.Tree
+-- import Data.Text
+-- import Data.Tree
 
 -- Pure Code:
 
-type DocSource = (String, Text)
-type DocTree = Tree DocSource
+-- type DocSource = (String, Text)
+-- type DocTree = Tree DocSource
+
+data Format = GenericMarkup | Texinfo
 
 -- Impure Code:
