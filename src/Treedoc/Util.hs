@@ -1,11 +1,13 @@
 module Treedoc.Util
-  ( saferListDirectory
-  , saferReadFile
-  , getFileName ) where
+  ( getFileName
+  , saferListDirectory
+  , convertFileWithOpts ) where
 
-import qualified Data.Text as T
+import qualified Text.Pandoc.App as P
 import System.Directory
 import System.IO
+
+import Treedoc.Definition
 
 -- Pure Code:
 
@@ -30,13 +32,18 @@ listDirectoryAbsolute path = do
 saferListDirectory :: FilePath -> IO [FilePath]
 saferListDirectory path =
   doesDirectoryExist path >>= (\x ->
-     case x of
-       True  -> listDirectoryAbsolute path
-       False -> return [] )
+                                  case x of
+                                    True  -> listDirectoryAbsolute path
+                                    False -> return [] )
+ 
+-- saferReadFile :: FilePath -> IO (T.Text)
+-- saferReadFile path =
+--   doesFileExist path >>= (\x ->
+--      case x of
+--        True  -> T.pack `fmap` (readFile path)
+--        False -> return $ T.pack $ getFileName path )
+-- 
 
-saferReadFile :: FilePath -> IO (T.Text)
-saferReadFile path =
-  doesFileExist path >>= (\x ->
-     case x of
-       True  -> T.pack `fmap` (readFile path)
-       False -> return $ T.pack $ getFileName path )
+convertFileWithOpts :: DocSource -> DocSource -> P.Opt -> IO ()
+convertFileWithOpts input output opt = P.convertWithOpts $ opt { P.optInputFiles = Just [input]
+                                                               , P.optOutputFile = Just output }

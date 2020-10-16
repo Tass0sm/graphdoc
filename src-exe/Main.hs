@@ -1,16 +1,18 @@
 module Main where
 
 import qualified Text.Pandoc.App as P
+import qualified PandocOptionsUtil as P
 import qualified Treedoc as T
 
--- convertFileWithOpts :: [FilePath] -> Opt -> IO ()
--- convertFileWithOpts files opt = convertWithOpts $ opt {optInputFiles = Just files}
+import System.Environment
 
 main :: IO ()
 main = do
-  treedocOpt <- T.parseOptions T.options T.defaultOpts
-  pandocOpt <- P.parseOptions P.options P.defaultOpts
+  args <- getArgs
+  (treedocOpt, otherArgs) <- T.parseOptionsFromArgs args T.options T.defaultOpts
+  pandocOpt <- P.parseOptionsFromArgs otherArgs P.options P.defaultOpts
   T.convertWithOpts treedocOpt pandocOpt
 
 --  E.catch (parseOptions options defaultOpts >>= convertWithOpts)
 --          (handleError . Left)
+

@@ -390,6 +390,57 @@ done alphabetically or by date.
 
 * Usage
 
-#+BEGIN_SRC shell
-  treedoc [options] (--pandoc-options | -p) [pandoc-options] input-dir output-dir  
-#+END_SRC
+  #+BEGIN_SRC shell
+    treedoc [options] (--pandoc-options | -p) [pandoc-options] input-dir output-dir  
+  #+END_SRC
+* New Summarized Layout
+
+  Top level function:
+
+  #+BEGIN_SRC haskell
+    convertWithOpts :: T.Opt -> P.Opt -> IO
+  #+END_SRC
+
+  T.Opt contains which tree format to use. P.Opt contains which markup format is
+  used in tree's nodes. Therefore, the process in the top level function goes like so:
+
+  1. Read in the tree of source nodes, according to T.Opt's optTreeFrom value.
+
+  #+BEGIN_SRC haskell
+    getTreeReader :: Format -> FilePath -> IO (Tree Source)
+    getTreeReader format = case format of
+      GenericMarkup -> readTreeGM
+      Texinfo -> readTreeTI
+      _ -> readTreeGM
+  #+END_SRC
+  
+  2. Make a tree-specific conversion function which internally uses Pandoc's
+     convertWithOpts with some surrounding window dressing.
+
+  #+BEGIN_SRC haskell
+    getDocConverter :: T.Opt -> P.Opt -> Source -> IO ()
+    getDocConverter treedocOpt pandocOpt =
+         let 
+
+  #+END_SRC
+     
+  3. Walk the tree and use the conversion function to write each node of the
+     tree to a new place (File, position in file, walking is done depth first) .
+
+  #+BEGIN_SRC haskell
+    convertWithOpts treedocOpt pandocOpt = do
+      let fromFormat = (T.optFrom treedocOpt)
+      let treeReader = getTreeReader fromFormat
+      tree <- treeReader (T.optInputPath treedocOpt)
+
+      let converter = getDocConverter treedocOpt pandocOpt
+      newTree <- traverse converter tree
+
+      let toFormat = (T.optTo treedocOpt)
+      let treeWriter = getTreeWriter toFormat
+      treeWriter newTree
+  #+END_SRC
+
+  How 
+     
+     

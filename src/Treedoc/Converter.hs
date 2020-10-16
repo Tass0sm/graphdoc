@@ -10,5 +10,5 @@ import Data.Text
 -- getMarkupConverter :: Pandoc.Opt -> (Text -> Text)
 -- getMarkupConverter = undefined
 
--- makeConverter :: Treedoc.Opt -> Pandoc.Opt -> (DocSource -> DocSource)
-makeConverter = undefined
+getDocConverter :: Pandoc.Opt -> DocSource -> IO ()
+getDocConverter = undefined
