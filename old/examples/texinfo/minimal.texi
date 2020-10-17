@@ -1,4 +1,0 @@
-\input texinfo
-@settitle Minimal Texinfo File
-
-@bye

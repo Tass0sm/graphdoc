@@ -15,4 +15,3 @@ main = do
 
 --  E.catch (parseOptions options defaultOpts >>= convertWithOpts)
 --          (handleError . Left)
-

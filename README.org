@@ -1,0 +1,27 @@
+* Is This Useful?
+
+  Pandoc: Converts a markup file or set of markup files well.
+
+  Treedoc: Automatically reads markup files into an ordered tree (according to a
+  few formats), converts them with pandoc, and writes them into another ordered
+  format.
+
+** Example:
+
+   Say I want to have all my documentation in texinfo. Lots of projects write
+   their documentation in markdown (Ex: [[https://github.com/vuejs/vuejs.org/tree/master/src/v2][vuejs]]) or RST (Ex: [[https://github.com/hyperspy/hyperspy/tree/RELEASE_next_minor/doc][hyperspy]]). These are
+   ordered like trees. Usually, they require seperate tools to convert them to
+   different output formats. That's annoying. Treedoc does that job but with
+   multiple formats for both input and output, where the other tools only have
+   one input format.
+
+   Pandoc already can convert between every notable markup format. So treedoc
+   does the job of those tools but using pandoc's capabilities. Yeah that's a
+   little redundant, but it'll first implement the formats that are not
+   supported by those other tools.
+  
+* Usage
+
+  #+BEGIN_SRC shell
+    treedoc [treedoc-options] [pandoc-options]
+  #+END_SRC
