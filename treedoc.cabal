@@ -61,6 +61,7 @@ library
                      , Treedoc.App.CommandLineOptions
                      , Treedoc.Definition
                      , Treedoc.Readers
+                     , Treedoc.Writers
                      , Treedoc.Formats.GenericMarkup
                      , Treedoc.Util
 

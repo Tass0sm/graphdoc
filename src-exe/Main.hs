@@ -11,7 +11,7 @@ main = do
   args <- getArgs
   (treedocOpt, otherArgs) <- T.parseOptionsFromArgs args T.options T.defaultOpts
   pandocOpt <- P.parseOptionsFromArgs otherArgs P.options P.defaultOpts
-  T.convertWithOpts treedocOpt pandocOpt
+  T.convertTreeWithOpts treedocOpt pandocOpt
 
 --  E.catch (parseOptions options defaultOpts >>= convertWithOpts)
 --          (handleError . Left)

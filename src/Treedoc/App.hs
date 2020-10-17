@@ -1,25 +1,23 @@
  module Treedoc.App
-  ( convertWithOpts
-  , T.parseOptions
-  , T.parseOptionsFromArgs
-  , T.options
-  , T.defaultOpts ) where
+  ( convertTreeWithOpts
+  , T.defaultOpts
+  , module Treedoc.App.CommandLineOptions ) where
+
+import Treedoc.App.CommandLineOptions
 
 import qualified Text.Pandoc.App as P
 import qualified Treedoc.App.Opt as T
-import qualified Treedoc.App.CommandLineOptions as T
+
 import Treedoc.Readers
-import Treedoc.Formats.GenericMarkup
+import Treedoc.Writers
 
 import Data.Maybe
 import Data.Tree
 
 -- Impure:
 
--- Convert from one documentation tree format to another. This is the entire
--- functionality of treedoc.
-convertWithOpts :: T.Opt -> P.Opt -> IO ()
-convertWithOpts treedocOpt pandocOpt = do
+convertTreeWithOpts :: T.Opt -> P.Opt -> IO ()
+convertTreeWithOpts treedocOpt pandocOpt = do
   -- This throws an error if no input path was provided. It does what I want, but
   -- I don't think its the right way to do this.
   let inputPath = fromJust (T.optInputPath treedocOpt)
@@ -29,5 +27,7 @@ convertWithOpts treedocOpt pandocOpt = do
   let treeReader = getTreeReader fromFormat
   tree <- treeReader inputPath
 
+  let toFormat = (T.optTo treedocOpt)
+  let treeWriter = getTreeWriter toFormat
   writeFromTree_GM outputPath "." tree pandocOpt
 

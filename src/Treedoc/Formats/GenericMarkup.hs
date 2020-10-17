@@ -13,6 +13,10 @@ import Treedoc.Util
 
 -- Impure Code:
 
+convertFileWithOpts :: FilePath -> FilePath -> P.Opt -> IO ()
+convertFileWithOpts input output opt = P.convertWithOpts $ opt { P.optInputFiles = Just [input]
+                                                               , P.optOutputFile = Just output }
+
 unfolder :: FilePath -> IO (DocSource, [FilePath])
 unfolder path = do
   subFiles <- saferListDirectory path

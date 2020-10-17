@@ -1,7 +1,6 @@
 module Treedoc.Util
   ( getFileName
-  , saferListDirectory
-  , convertFileWithOpts ) where
+  , saferListDirectory ) where
 
 import qualified Text.Pandoc.App as P
 import System.Directory
@@ -43,7 +42,3 @@ saferListDirectory path =
 --        True  -> T.pack `fmap` (readFile path)
 --        False -> return $ T.pack $ getFileName path )
 -- 
-
-convertFileWithOpts :: DocSource -> DocSource -> P.Opt -> IO ()
-convertFileWithOpts input output opt = P.convertWithOpts $ opt { P.optInputFiles = Just [input]
-                                                               , P.optOutputFile = Just output }
