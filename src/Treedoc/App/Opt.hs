@@ -9,7 +9,7 @@ data Opt = Opt
     , optTo         :: Format         -- Output format
     , optInputPath  :: Maybe FilePath -- Input File Location
     , optOutputPath :: Maybe FilePath -- Output File Location
-    }
+    } deriving (Show)
 
 defaultOpts :: Opt
 defaultOpts = Opt

@@ -37,9 +37,7 @@ parseOptionsFromArgs args options' defaults = do
   let mbArgs = case args of
                  [] -> Nothing
                  xs -> Just xs
-  return $ opts{ optInputFiles =
-                   map normalizePath <$> (optInputFiles opts <> mbArgs)
-               , optStandalone = -- certain other options imply standalone
+  return $ opts{ optStandalone = -- certain other options imply standalone
                    optStandalone opts ||
                      isJust (optTemplate opts) ||
                      optSelfContained opts ||
