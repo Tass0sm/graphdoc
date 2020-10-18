@@ -3,11 +3,10 @@
   , T.defaultOpts
   , module Treedoc.App.CommandLineOptions ) where
 
-import Treedoc.App.CommandLineOptions
-
 import qualified Text.Pandoc.App as P
 import qualified Treedoc.App.Opt as T
 
+import Treedoc.App.CommandLineOptions
 import Treedoc.Readers
 import Treedoc.Writers
 
