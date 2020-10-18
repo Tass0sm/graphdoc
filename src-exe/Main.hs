@@ -10,10 +10,8 @@ main :: IO ()
 main = do
   args <- getArgs
   (treedocOpt, otherArgs) <- T.parseOptionsFromArgs args T.options T.defaultOpts
-  putStrLn (show treedocOpt)
-  putStrLn (show otherArgs)
-  --pandocOpt <- P.parseOptionsFromArgs otherArgs P.options P.defaultOpts
-  --T.convertTreeWithOpts treedocOpt pandocOpt
+  pandocOpt <- P.parseOptionsFromArgs otherArgs P.options P.defaultOpts
+  T.convertTreeWithOpts treedocOpt pandocOpt
 
 --  E.catch (parseOptions options defaultOpts >>= convertWithOpts)
 --          (handleError . Left)
