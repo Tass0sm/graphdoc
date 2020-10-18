@@ -1,4 +1,4 @@
-module Treedoc.Formats.GenericMarkup
+ module Treedoc.Formats.GenericMarkup
   ( readIntoTree_GM
   , writeFromTree_GM ) where
 
