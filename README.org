@@ -23,5 +23,7 @@
 * Usage
 
   #+BEGIN_SRC shell
-    treedoc [treedoc-options] [pandoc-options]
+    treedoc [treedoc-options] [pandoc-options] input
   #+END_SRC
+
+  Order of treedoc options and pandoc options is not restricted.

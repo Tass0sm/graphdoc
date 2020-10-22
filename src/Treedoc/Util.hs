@@ -1,23 +1,11 @@
 module Treedoc.Util
-  ( getFileName
-  , saferListDirectory ) where
+  ( saferListDirectory ) where
 
 import qualified Text.Pandoc.App as P
 import System.Directory
 import System.IO
 
 import Treedoc.Definition
-
--- Pure Code:
-
--- Get name of file after final file seperator. If the file path is relative and
--- with no seperators, it is already the the name we are interested in.
-getFileName :: FilePath -> String
-getFileName path =
-  let (prefix, suffix) = break (=='/') path in
-    if null suffix
-    then prefix
-    else getFileName (tail suffix)
 
 -- Impure Code:
 
