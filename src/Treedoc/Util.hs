@@ -1,11 +1,19 @@
 module Treedoc.Util
-  ( saferListDirectory ) where
+  ( saferListDirectory
+  , translatePath ) where
 
 import qualified Text.Pandoc.App as P
 import System.Directory
 import System.IO
+import System.FilePath
 
 import Treedoc.Definition
+
+-- Pure Code:
+
+translatePath :: FilePath -> FilePath -> FilePath -> FilePath
+translatePath root absoluteSource output =
+  normalise (output </> makeRelative root absoluteSource)
 
 -- Impure Code:
 

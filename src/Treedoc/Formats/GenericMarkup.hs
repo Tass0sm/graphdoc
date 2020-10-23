@@ -1,4 +1,4 @@
- module Treedoc.Formats.GenericMarkup
+module Treedoc.Formats.GenericMarkup
   ( readIntoTree_GM
   , writeFromTree_GM ) where
 
@@ -41,17 +41,16 @@ test_GM outputPath tree@(Node source _) opt = undefined
 
 
 myTraverse :: FilePath -> FilePath -> Tree DocSource -> P.Opt -> IO ()
-myTraverse outputPath root (Node source children) opt =
-  let relativeSource = makeRelative root source
-      absoluteOutput = normalise (outputPath ++ "/" ++ relativeSource)
-  in
-    if null children
-    then do
-      convertFileWithOpts source absoluteOutput opt
-    else do
-      createDirectoryIfMissing True absoluteOutput
-      mconcat $ map (\tree -> myTraverse outputPath root tree opt) children
-  
+myTraverse output root (Node source children) opt =
+  let absoluteOutput = translatePath root source output
+   in if null children
+     then do
+    convertFileWithOpts source absoluteOutput opt
+     else do
+    createDirectoryIfMissing True absoluteOutput
+    mconcat $ map (\tree -> myTraverse output root tree opt) children
+
 writeFromTree_GM :: FilePath -> Tree DocSource -> P.Opt -> IO ()
 writeFromTree_GM outputPath tree@(Node source children) opt =
-  let root = source in myTraverse outputPath root tree opt
+  let root = source
+  in myTraverse outputPath root tree opt
