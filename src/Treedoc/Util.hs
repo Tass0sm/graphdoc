@@ -1,11 +1,14 @@
 module Treedoc.Util
-  ( saferListDirectory
-  , translatePath ) where
+  ( translatePath
+  , mapTreeWithLeafCondition
+  , saferListDirectory ) where
 
 import qualified Text.Pandoc.App as P
 import System.Directory
 import System.IO
 import System.FilePath
+
+import Data.Tree
 
 import Treedoc.Definition
 
@@ -14,6 +17,12 @@ import Treedoc.Definition
 translatePath :: FilePath -> FilePath -> FilePath -> FilePath
 translatePath root absoluteSource output =
   normalise (output </> makeRelative root absoluteSource)
+
+mapTreeWithLeafCondition :: (Bool -> a -> b) -> Tree a -> Tree b
+mapTreeWithLeafCondition f (Node x []) =
+  Node (f True x) []
+mapTreeWithLeafCondition f (Node x ts) =
+  Node (f False x) (map (mapTreeWithLeafCondition f) ts)
 
 -- Impure Code:
 
