@@ -3,9 +3,11 @@ module Treedoc.Formats.GenericMarkup
   , writeFromTree_GM ) where
 
 import qualified Text.Pandoc.App as P
-
 import qualified Data.Text as T
+
+import Data.Foldable (fold)
 import Data.Tree
+
 import System.Directory
 import System.FilePath
 
@@ -13,11 +15,6 @@ import Treedoc.Definition
 import Treedoc.Util
 
 -- Impure Code:
-
-convertFileWithOpts :: FilePath -> FilePath -> P.Opt -> IO ()
-convertFileWithOpts input output opt = P.convertWithOpts $ opt { P.optInputFiles = Just [input]
-                                                               , P.optOutputFile = Just output }
-
 --- Reading:
 
 unfolder :: FilePath -> IO (DocSource, [FilePath])
@@ -48,4 +45,4 @@ convertNode root input output isLeaf opt =
 writeFromTree_GM :: FilePath -> Tree DocSource -> P.Opt -> IO ()
 writeFromTree_GM output tree@(Node root children) opt =
   let converter = (\isLeaf input -> convertNode root input output isLeaf opt)
-  in mconcat $ flatten (mapTreeWithLeafCondition converter tree)
+  in fold $ mapTreeWithLeafCondition converter tree

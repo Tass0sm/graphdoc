@@ -1,7 +1,8 @@
 module Treedoc.Util
   ( translatePath
   , mapTreeWithLeafCondition
-  , saferListDirectory ) where
+  , saferListDirectory
+  , convertFileWithOpts ) where
 
 import qualified Text.Pandoc.App as P
 import System.Directory
@@ -39,7 +40,11 @@ saferListDirectory path =
                                   case x of
                                     True  -> listDirectoryAbsolute path
                                     False -> return [] )
- 
+
+convertFileWithOpts :: FilePath -> FilePath -> P.Opt -> IO ()
+convertFileWithOpts input output opt = P.convertWithOpts $ opt { P.optInputFiles = Just [input]
+                                                               , P.optOutputFile = Just output }
+  
 -- saferReadFile :: FilePath -> IO (T.Text)
 -- saferReadFile path =
 --   doesFileExist path >>= (\x ->

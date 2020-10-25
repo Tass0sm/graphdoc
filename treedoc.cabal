@@ -32,15 +32,17 @@ extra-source-files:  CHANGELOG.md
 library
   -- Modules exported by the library.
   exposed-modules:     Treedoc
+                     , Treedoc.Readers
+                     , Treedoc.Writers
+
 
   -- Modules included in this library but not exported.
   other-modules:       Treedoc.App
                      , Treedoc.App.Opt
                      , Treedoc.App.CommandLineOptions
                      , Treedoc.Definition
-                     , Treedoc.Readers
-                     , Treedoc.Writers
                      , Treedoc.Formats.GenericMarkup
+                     , Treedoc.Formats.Texinfo
                      , Treedoc.Util
 
   -- LANGUAGE extensions used by modules in this package.
