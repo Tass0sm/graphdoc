@@ -28,18 +28,19 @@ readIntoTree_TI path = (unfoldTreeM_BF unfolder) path
 convertLeaf :: FilePath -> FilePath -> P.Opt -> IO ()
 convertLeaf source output opt = undefined
 
-convertInner :: FilePath -> IO ()
-convertInner output = undefined
+convertInner :: FilePath -> FilePath -> IO ()
+convertInner source output = undefined
   
 convertNode :: FilePath -> FilePath -> FilePath -> Bool -> P.Opt -> IO ()
 convertNode root input output isLeaf opt =
   if isLeaf
   then convertLeaf input absoluteOutput opt
-  else convertInner absoluteOutput
+  else convertInner input absoluteOutput
   where
     absoluteOutput = translatePath root input output
   
 writeFromTree_TI :: FilePath -> Tree DocSource -> P.Opt -> IO ()
-writeFromTree_TI output tree@(Node root children) opt =
-  let converter = (\isLeaf input -> convertNode root input output isLeaf opt)
-  in fold $ mapTreeWithLeafCondition converter tree
+writeFromTree_TI output tree@(Node root children) opt = undefined
+
+--  let converter = (\isLeaf input -> convertNode root input output isLeaf opt)
+--  in fold $ mapTreeWithLeafCondition converter tree

@@ -74,19 +74,3 @@ handleUnrecognizedOption "--epub-stylesheet" =
 handleUnrecognizedOption "-R" = handleUnrecognizedOption "--parse-raw"
 handleUnrecognizedOption x =
   (("Unknown option " ++ x ++ ".") :)
-
--- On Windows with ghc 8.6+, we need to rewrite paths
--- beginning with \\ to \\?\UNC\. -- See #5127.
-normalizePath :: FilePath -> FilePath
-#ifdef _WINDOWS
-#if MIN_VERSION_base(4,12,0)
-normalizePath fp =
-  if "\\\\" `isPrefixOf` fp && not ("\\\\?\\" `isPrefixOf` fp)
-    then "\\\\?\\UNC\\" ++ drop 2 fp
-    else fp
-#else
-normalizePath = id
-#endif
-#else
-normalizePath = id
-#endif

@@ -35,7 +35,6 @@ library
                      , Treedoc.Readers
                      , Treedoc.Writers
 
-
   -- Modules included in this library but not exported.
   other-modules:       Treedoc.App
                      , Treedoc.App.Opt
@@ -55,6 +54,7 @@ library
                      , directory
                      , pandoc
                      , filepath
+                     , temporary
 
   -- Directories containing source files.
   hs-source-dirs:      src

@@ -2,12 +2,18 @@ module Treedoc.Util
   ( translatePath
   , mapTreeWithLeafCondition
   , saferListDirectory
-  , convertFileWithOpts ) where
+  , saferReadFile
+  , convertFileWithOpts
+  , convertTextWithOpts
+  , getDocSource ) where
 
 import qualified Text.Pandoc.App as P
+import qualified Data.Text as T
+
 import System.Directory
 import System.IO
 import System.FilePath
+import System.IO.Temp
 
 import Data.Tree
 
@@ -31,8 +37,8 @@ listDirectoryAbsolute :: FilePath -> IO [FilePath]
 listDirectoryAbsolute path = do
     absPath <- makeAbsolute path
     files <- listDirectory absPath
-    let absFiles = map ((absPath ++ "/")++) files
-      in return absFiles
+    let absFiles = map (absPath</>) files
+    return absFiles
 
 saferListDirectory :: FilePath -> IO [FilePath]
 saferListDirectory path =
@@ -44,11 +50,21 @@ saferListDirectory path =
 convertFileWithOpts :: FilePath -> FilePath -> P.Opt -> IO ()
 convertFileWithOpts input output opt = P.convertWithOpts $ opt { P.optInputFiles = Just [input]
                                                                , P.optOutputFile = Just output }
-  
--- saferReadFile :: FilePath -> IO (T.Text)
--- saferReadFile path =
---   doesFileExist path >>= (\x ->
---      case x of
---        True  -> T.pack `fmap` (readFile path)
---        False -> return $ T.pack $ getFileName path )
--- 
+
+convertTextWithOpts :: T.Text -> FilePath -> P.Opt -> IO ()
+convertTextWithOpts text output opt = do
+  tempInputPath <- writeSystemTempFile "input.txt" (T.unpack text)
+  convertFileWithOpts tempInputPath output opt
+
+saferReadFile :: FilePath -> IO (T.Text)
+saferReadFile path =
+  doesFileExist path >>= (\x ->
+     case x of
+       True  -> T.pack `fmap` (readFile path)
+       False -> return T.empty )
+
+getDocSource :: FilePath -> IO DocSource
+getDocSource location = do
+  name <- makeAbsolute location
+  contents <- saferReadFile location
+  return (name, contents)
