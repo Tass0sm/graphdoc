@@ -43,6 +43,7 @@ library
                      , Treedoc.Formats.GenericMarkup
                      , Treedoc.Formats.Texinfo
                      , Treedoc.Util
+                     , Treedoc.TreeUtil
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:

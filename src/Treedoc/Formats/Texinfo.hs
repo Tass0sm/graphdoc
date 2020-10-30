@@ -17,30 +17,26 @@ import Treedoc.Util
 -- Impure Code:
 --- Reading:
 
-unfolder :: FilePath -> IO (DocSource, [FilePath])
+unfolder :: FilePath -> IO (DocNode, [FilePath])
 unfolder path = undefined
 
-readIntoTree_TI :: FilePath -> IO (Tree DocSource)
+readIntoTree_TI :: FilePath -> IO (Tree DocNode)
 readIntoTree_TI path = (unfoldTreeM_BF unfolder) path
 
 --- Writing:
 
-convertLeaf :: FilePath -> FilePath -> P.Opt -> IO ()
-convertLeaf source output opt = undefined
+convertLeaf :: DocNode -> FilePath -> P.Opt -> IO ()
+convertLeaf input output opt = undefined
 
-convertInner :: FilePath -> FilePath -> IO ()
-convertInner source output = undefined
+convertInner :: FilePath -> IO ()
+convertInner output = undefined
   
-convertNode :: FilePath -> FilePath -> FilePath -> Bool -> P.Opt -> IO ()
-convertNode root input output isLeaf opt =
-  if isLeaf
-  then convertLeaf input absoluteOutput opt
-  else convertInner input absoluteOutput
-  where
-    absoluteOutput = translatePath root input output
-  
-writeFromTree_TI :: FilePath -> Tree DocSource -> P.Opt -> IO ()
-writeFromTree_TI output tree@(Node root children) opt = undefined
+convertNode :: DocNode -> FilePath -> FilePath -> Bool -> P.Opt -> IO ()
+convertNode input root output isLeaf opt = undefined
 
---  let converter = (\isLeaf input -> convertNode root input output isLeaf opt)
+writeFromTree_TI :: Tree DocNode -> FilePath -> P.Opt -> IO ()
+writeFromTree_TI tree output opt = undefined
+
+--  let root = fst rootSource
+--      converter = (\isLeaf input -> convertNode input root output isLeaf opt)
 --  in fold $ mapTreeWithLeafCondition converter tree
