@@ -28,7 +28,7 @@ This is not an advantage dependent on format or editor. However, Emacs with
 Texinfo can demonstrate the idea. Emacs users can lookup a symbol in info
 documentation with the function ~info-lookup-symbol~. This simple facility lets
 one directly find documentation corresponding to the functions, objects, types,
-etc. in considerably less time, fewer keystrokes, and little aggravation.
+etc. in considerably less time, fewer keystrokes, and with little aggravation.
 
 * Usage
 
@@ -47,9 +47,7 @@ output formats. That's annoying. Treedoc does that job but with multiple formats
 for both input and output, where the other tools only have one input format.
 
 Pandoc already can convert between every notable markup format. So Treedoc does
-the job of the tree converting
-
-those tools but using pandoc's capabilities. Yeah that's a
+the job of the tree converting tools but does so using pandoc's capabilities. Yeah that's a
 little redundant, but it'll first implement the formats that are not
 supported by those other tools.
   
