@@ -35,7 +35,7 @@ convertNode :: DocNode -> FilePath -> FilePath -> Bool -> P.Opt -> IO ()
 convertNode input root output isLeaf opt = undefined
 
 writeFromTree_TI :: Tree DocNode -> FilePath -> P.Opt -> IO ()
-writeFromTree_TI tree output opt = undefined
+writeFromTree_TI tree output opt = putStrLn $ drawTree $ (\(x, _, _) -> x) <$> tree
 
 --  let root = fst rootSource
 --      converter = (\isLeaf input -> convertNode input root output isLeaf opt)
