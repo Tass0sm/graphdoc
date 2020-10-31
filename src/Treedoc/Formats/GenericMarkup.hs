@@ -23,8 +23,9 @@ import Treedoc.Util
 getDocSource :: FilePath -> IO DocNode
 getDocSource location = do
   let name = takeBaseName location
+  let format = formatFromFilePath location
   contents <- saferReadFile location
-  return (name, contents)
+  return (name, format, contents)
 
 unfolder :: FilePath -> IO (DocNode, [FilePath])
 unfolder location = do
@@ -37,40 +38,31 @@ readIntoTree_GM path = (unfoldTreeM_BF unfolder) path
 
 --- Writing:
 
-convertLeaf :: DocNode -> FilePath -> P.Opt -> IO ()
-convertLeaf input output options = undefined
+convertLeaf :: DocNode -> P.Opt -> IO ()
+convertLeaf (path, format, text) options =
+  let pathWithExtension = path <.> "txt"
+  in convertTextWithOpts text path options
 
---  let inputFile = fst input
---  in convertFileWithOpts inputFile output opt
-
-convertInner :: FilePath -> IO ()
-convertInner output = undefined
-
--- createDirectoryIfMissing True output
+convertInner :: DocNode -> IO ()
+convertInner (path, _, _) =
+  createDirectoryIfMissing True path
   
-convertNode :: DocNode -> FilePath -> P.Opt -> IO ()
-convertNode input output options = undefined
+convertNode :: Bool -> DocNode -> P.Opt -> IO ()
+convertNode isLeaf input options =
+  if isLeaf
+  then convertLeaf input options
+  else convertInner input
 
---  if isLeaf
---  then convertLeaf input absoluteOutput opt
---  else convertInner absoluteOutput
---  where
---    inputLocation = fst input
---    absoluteOutput = translatePath root inputLocation output
+prependToDocNodeName :: DocNode -> DocNode -> DocNode
+prependToDocNodeName (parentName, _, _) (name, format, text) =
+  (parentName </> name, format, text)
 
-makeOutputPathTree :: FilePath -> Tree DocNode -> Tree FilePath
-makeOutputPathTree prefix tree =
-  let nameTree = fst <$> tree
-  in TreeUtil.mapWithNewParent (</>) prefix nameTree
+makeTreeWithAbsoluteNames :: FilePath -> Tree DocNode -> Tree DocNode
+makeTreeWithAbsoluteNames prefix tree =
+  TreeUtil.mapWithNewParent prependToDocNodeName (prefix, Nothing, T.empty) tree
 
 writeFromTree_GM :: Tree DocNode -> FilePath -> P.Opt -> IO ()
 writeFromTree_GM tree output options =
-  let outputPathTree = makeOutputPathTree output tree
-      converter = (\inputNode outputPath -> convertNode inputNode outputPath options)
-  in do
-    putStrLn $ drawTree outputPathTree
---    fold $ liftA2 converter tree outputPathTree
-  
---  let root = fst rootSource
---      converter = (\isLeaf input -> convertNode input root output isLeaf opt)
---  in fold $ mapTreeWithLeafCondition converter tree
+  let treeWithAbsoluteNames = makeTreeWithAbsoluteNames output tree
+      converter = (\isLeaf input -> convertNode isLeaf input options)
+  in fold $ TreeUtil.mapWithLeafCondition converter treeWithAbsoluteNames

@@ -31,12 +31,12 @@ options =
     "Output Path"
   , Option "" ["tree-from"]
     (ReqArg
-     (\arg opt -> return opt {optFrom = (read arg)::Format})
+     (\arg opt -> return opt {optFrom = (read arg)::TreeFormat})
      "PATH")
     "Input Tree Format"
   , Option "" ["tree-to"]
     (ReqArg
-     (\arg opt -> return opt {optTo = (read arg)::Format})
+     (\arg opt -> return opt {optTo = (read arg)::TreeFormat})
      "PATH")
     "Output Tree Format"
   ]
