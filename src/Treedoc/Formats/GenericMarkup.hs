@@ -9,6 +9,7 @@ import qualified Data.Text as T
 import Control.Applicative (liftA2)
 
 import Data.Foldable (fold)
+import Data.Maybe
 import Data.Tree
 
 import System.Directory
@@ -40,8 +41,10 @@ readIntoTree_GM path = (unfoldTreeM_BF unfolder) path
 
 convertLeaf :: DocNode -> P.Opt -> IO ()
 convertLeaf (path, format, text) options =
-  let pathWithExtension = path <.> "txt"
-  in convertTextWithOpts text path options
+  let newFormat = T.unpack <$> (P.optTo options)
+      extension = extensionFromFormat newFormat
+      pathWithExtension = path <.> extension
+  in convertTextWithOpts text pathWithExtension options
 
 convertInner :: DocNode -> IO ()
 convertInner (path, _, _) =

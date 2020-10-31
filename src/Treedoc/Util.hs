@@ -1,6 +1,7 @@
 module Treedoc.Util
   ( translatePath
   , formatFromFilePath
+  , extensionFromFormat
   , saferListDirectory
   , saferReadFile
   , convertFileWithOpts
