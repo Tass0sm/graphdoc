@@ -5,7 +5,8 @@ module Treedoc.Util
   , saferListDirectory
   , saferReadFile
   , convertFileWithOpts
-  , convertTextWithOpts ) where
+  , convertTextWithOpts
+  , translateMarkupWithPandoc ) where
 
 import qualified Text.Pandoc.App as P
 import qualified Data.Text as T
@@ -137,7 +138,12 @@ convertTextWithOpts text output opt = do
   tempInputPath <- writeSystemTempFile "input.md" (T.unpack text)
   convertFileWithOpts tempInputPath output opt
 
-
+translateMarkupWithPandoc :: T.Text -> P.Opt -> IO T.Text
+translateMarkupWithPandoc text opt = do
+  tempInputPath <- writeSystemTempFile "input.txt" (T.unpack text)
+  tempOutputPath <- emptySystemTempFile "output.txt"
+  convertFileWithOpts tempInputPath tempOutputPath opt
+  T.pack <$> readFile tempOutputPath
 
 saferReadFile :: FilePath -> IO (T.Text)
 saferReadFile path =
