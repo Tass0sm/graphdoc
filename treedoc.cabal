@@ -43,6 +43,7 @@ library
                      , Treedoc.Definition
                      , Treedoc.Formats.GenericMarkup
                      , Treedoc.Formats.Texinfo
+                     , Treedoc.Formats.Screen
                      , Treedoc.Util
                      , Treedoc.TreeUtil
 

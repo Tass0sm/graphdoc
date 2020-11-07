@@ -1,13 +1,18 @@
 module Treedoc.Converters
   ( getTreeConverter
-  , convertTree_GM ) where
+  , convertTree_GM
+  , convertTree_TI ) where
 
 import qualified Text.Pandoc.App as P
 
 import Treedoc.Definition
 import Treedoc.Formats.GenericMarkup (convertTree_GM)
+import Treedoc.Formats.Texinfo (convertTree_TI)
+import Treedoc.Formats.Screen (convertTree_SC)
 
-getTreeConverter :: TreeFormat -> P.Opt -> DocTree -> IO DocTree
+getTreeConverter :: Maybe TreeFormat -> P.Opt -> DocTree -> IO DocTree
 getTreeConverter format = case format of
-  GenericMarkup -> convertTree_GM
+  Just GenericMarkup -> convertTree_GM
+  Just Texinfo -> convertTree_TI
+  Nothing -> convertTree_SC
 

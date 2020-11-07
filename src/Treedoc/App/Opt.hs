@@ -6,7 +6,7 @@ import Treedoc.Definition
 
 data Opt = Opt
     { optFrom       :: TreeFormat         -- Input format
-    , optTo         :: TreeFormat         -- Output format
+    , optTo         :: Maybe TreeFormat         -- Output format
     , optInputPath  :: Maybe FilePath -- Input File Location
     , optOutputPath :: Maybe FilePath -- Output File Location
     } deriving (Show)
@@ -14,6 +14,6 @@ data Opt = Opt
 defaultOpts :: Opt
 defaultOpts = Opt
   { optFrom = GenericMarkup
-  , optTo   = GenericMarkup
+  , optTo   = Nothing
   , optInputPath = Nothing
   , optOutputPath = Just "." }

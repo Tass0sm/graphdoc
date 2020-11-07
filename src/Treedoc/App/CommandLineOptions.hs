@@ -3,10 +3,20 @@ module Treedoc.App.CommandLineOptions
   , parseOptionsFromArgs
   , parseOptions ) where
 
+import Data.Char (toLower)
+
 import System.Environment
 import System.Console.GetOpt
+
 import Treedoc.App.Opt
 import Treedoc.Definition
+
+parseOutputFormat :: String -> Maybe TreeFormat
+parseOutputFormat arg =
+  case (map toLower arg) of
+    "genericmarkup" -> Just GenericMarkup
+    "texinfo" -> Just Texinfo
+    _ -> Nothing
 
 -- A list of option descriptions. The argument to the OptDescr type "(Opt -> IO
 -- Opt)" means that for each flag, an argument might be taken and return a
@@ -36,7 +46,7 @@ options =
     "Input Tree Format"
   , Option "" ["tree-to"]
     (ReqArg
-     (\arg opt -> return opt {optTo = (read arg)::TreeFormat})
+     (\arg opt -> return opt {optTo = parseOutputFormat arg} )
      "PATH")
     "Output Tree Format"
   ]

@@ -32,8 +32,5 @@ convertTreeWithOpts treedocOpt pandocOpt = do
   let treeWriter = getTreeWriter toFormat
 
   convertedTree <- treeConverter pandocOpt tree
-
-  putStrLn $ drawTree $ fromMaybe <$> ((\(_, x, _) -> x) <$> (snd convertedTree))
-  
   treeWriter convertedTree outputPath
 

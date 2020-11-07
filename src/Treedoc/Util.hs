@@ -151,5 +151,5 @@ saferReadFile :: FilePath -> IO (T.Text)
 saferReadFile path =
   doesFileExist path >>= (\x ->
      case x of
-       True  -> T.pack `fmap` (readFile path)
+       True  -> T.pack <$> (readFile path)
        False -> return T.empty )

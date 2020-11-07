@@ -7,11 +7,13 @@ import qualified Text.Pandoc.App as P
 
 import Treedoc.Formats.GenericMarkup (writeFromTree_GM)
 import Treedoc.Formats.Texinfo (writeFromTree_TI)
+import Treedoc.Formats.Screen (writeFromTree_SC)
 import Treedoc.Definition
 
 import Data.Tree
 
-getTreeWriter :: TreeFormat -> DocTree -> FilePath -> IO ()
+getTreeWriter :: Maybe TreeFormat -> DocTree -> FilePath -> IO ()
 getTreeWriter format = case format of
-  GenericMarkup -> writeFromTree_GM
-  Texinfo -> writeFromTree_TI
+  Just GenericMarkup -> writeFromTree_GM
+  Just Texinfo -> writeFromTree_TI
+  Nothing -> writeFromTree_SC

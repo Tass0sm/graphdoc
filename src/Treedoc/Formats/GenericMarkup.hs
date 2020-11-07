@@ -43,10 +43,13 @@ readIntoTree_GM path = do
 --- Conversion:
 
 convertNode :: P.Opt -> DocNode -> IO DocNode
-convertNode opt (name, format, text) = do
-  let newFormat = (P.optTo opt)
-  newText <- translateMarkupWithPandoc text opt
-  return (name, newFormat, newText)
+convertNode opt (name, format, text) = 
+  if isJust format
+  then do
+    let newFormat = (P.optTo opt)
+    newText <- translateMarkupWithPandoc text opt
+    return (name, newFormat, newText)
+  else return (name, format, text)
 
 convertTree_GM :: P.Opt -> DocTree -> IO DocTree
 convertTree_GM opt (_, nodeTree) =
