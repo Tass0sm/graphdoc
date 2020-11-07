@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Treedoc.Util
   ( translatePath
   , formatFromFilePath
@@ -25,7 +27,7 @@ translatePath :: FilePath -> FilePath -> FilePath -> FilePath
 translatePath root absoluteSource output =
   normalise (output </> makeRelative root absoluteSource)
 
-formatFromFilePath :: FilePath -> Maybe String
+formatFromFilePath :: FilePath -> Maybe T.Text
 formatFromFilePath path =
   case takeExtension (map C.toLower path) of
     ".adoc"     -> Just "asciidoc"
@@ -75,7 +77,7 @@ formatFromFilePath path =
     ['.',y]     | y `elem` ['1'..'9'] -> Just "man"
     _           -> Nothing
 
-extensionFromFormat :: Maybe String -> FilePath
+extensionFromFormat :: Maybe T.Text -> FilePath
 extensionFromFormat format =
   case format of
     Just "asciidoc"     ->                 ".adoc"

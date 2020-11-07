@@ -1,5 +1,6 @@
 module Treedoc.Formats.GenericMarkup
   ( readIntoTree_GM
+  , convertTree_GM
   , writeFromTree_GM ) where
 
 import qualified Treedoc.TreeUtil as TreeUtil
@@ -34,27 +35,43 @@ unfolder location = do
   subFiles <- saferListDirectory location
   return (docSource, subFiles)
 
-readIntoTree_GM :: FilePath -> IO (Tree DocNode)
-readIntoTree_GM path = (unfoldTreeM_BF unfolder) path
+readIntoTree_GM :: FilePath -> IO (DocTree)
+readIntoTree_GM path = do
+  tree <- (unfoldTreeM_BF unfolder) path
+  return (GenericMarkup, tree)
 
+--- Conversion:
+
+convertNode :: P.Opt -> DocNode -> IO DocNode
+convertNode opt (name, format, text) = do
+  let newFormat = (P.optTo opt)
+  newText <- translateMarkupWithPandoc text opt
+  return (name, newFormat, newText)
+
+convertTree_GM :: P.Opt -> DocTree -> IO DocTree
+convertTree_GM opt (_, nodeTree) =
+  let converter = convertNode opt
+  in do
+    newTree <- traverse converter nodeTree
+    return (GenericMarkup, newTree)
+     
 --- Writing:
 
-convertLeaf :: DocNode -> P.Opt -> IO ()
-convertLeaf (path, format, text) options =
-  let newFormat = T.unpack <$> (P.optTo options)
-      extension = extensionFromFormat newFormat
+writeLeaf :: DocNode -> IO ()
+writeLeaf (path, format, text) =
+  let extension = extensionFromFormat format
       pathWithExtension = path <.> extension
-  in convertTextWithOpts text pathWithExtension options
+  in writeFile pathWithExtension (T.unpack text)
 
-convertInner :: DocNode -> IO ()
-convertInner (path, _, _) =
+writeInner :: DocNode -> IO ()
+writeInner (path, _, _) =
   createDirectoryIfMissing True path
-  
-convertNode :: Bool -> DocNode -> P.Opt -> IO ()
-convertNode isLeaf input options =
+
+writeNode :: Bool -> DocNode -> IO ()
+writeNode isLeaf node =
   if isLeaf
-  then convertLeaf input options
-  else convertInner input
+  then writeLeaf node
+  else writeInner node
 
 prependToDocNodeName :: DocNode -> DocNode -> DocNode
 prependToDocNodeName (parentName, _, _) (name, format, text) =
@@ -64,8 +81,7 @@ makeTreeWithAbsoluteNames :: FilePath -> Tree DocNode -> Tree DocNode
 makeTreeWithAbsoluteNames prefix tree =
   TreeUtil.mapWithNewParent prependToDocNodeName (prefix, Nothing, T.empty) tree
 
-writeFromTree_GM :: Tree DocNode -> FilePath -> P.Opt -> IO ()
-writeFromTree_GM tree output options =
+writeFromTree_GM :: DocTree -> FilePath -> IO ()
+writeFromTree_GM (_, tree) output =
   let treeWithAbsoluteNames = makeTreeWithAbsoluteNames output tree
-      converter = (\isLeaf input -> convertNode isLeaf input options)
-  in fold $ TreeUtil.mapWithLeafCondition converter treeWithAbsoluteNames
+  in fold $ TreeUtil.mapWithLeafCondition writeNode treeWithAbsoluteNames

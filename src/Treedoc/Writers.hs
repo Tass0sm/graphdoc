@@ -11,7 +11,7 @@ import Treedoc.Definition
 
 import Data.Tree
 
-getTreeWriter :: TreeFormat -> Tree DocNode -> FilePath -> P.Opt -> IO ()
+getTreeWriter :: TreeFormat -> DocTree -> FilePath -> IO ()
 getTreeWriter format = case format of
   GenericMarkup -> writeFromTree_GM
   Texinfo -> writeFromTree_TI

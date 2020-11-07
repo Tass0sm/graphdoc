@@ -33,6 +33,7 @@ library
   -- Modules exported by the library.
   exposed-modules:     Treedoc
                      , Treedoc.Readers
+                     , Treedoc.Converters
                      , Treedoc.Writers
 
   -- Modules included in this library but not exported.

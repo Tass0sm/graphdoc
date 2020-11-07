@@ -8,6 +8,7 @@ import qualified Treedoc.App.Opt as T
 
 import Treedoc.App.CommandLineOptions
 import Treedoc.Readers
+import Treedoc.Converters
 import Treedoc.Writers
 
 import Data.Maybe
@@ -27,6 +28,12 @@ convertTreeWithOpts treedocOpt pandocOpt = do
   tree <- treeReader inputPath
 
   let toFormat = (T.optTo treedocOpt)
+  let treeConverter = getTreeConverter toFormat
   let treeWriter = getTreeWriter toFormat
-  treeWriter tree outputPath  pandocOpt
+
+  convertedTree <- treeConverter pandocOpt tree
+
+  putStrLn $ drawTree $ fromMaybe <$> ((\(_, x, _) -> x) <$> (snd convertedTree))
+  
+  treeWriter convertedTree outputPath
 

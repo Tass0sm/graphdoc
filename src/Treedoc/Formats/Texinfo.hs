@@ -20,9 +20,26 @@ import Treedoc.Util
 unfolder :: FilePath -> IO (DocNode, [FilePath])
 unfolder path = undefined
 
-readIntoTree_TI :: FilePath -> IO (Tree DocNode)
-readIntoTree_TI path = (unfoldTreeM_BF unfolder) path
+readIntoTree_TI :: FilePath -> IO (DocTree)
+readIntoTree_TI path = do
+  tree <- (unfoldTreeM_BF unfolder) path
+  return (Texinfo, tree)
 
+--- Conversion:
+
+convertNode :: P.Opt -> DocNode -> IO DocNode
+convertNode opt (name, format, text) = do
+  let newFormat = (P.optTo opt)
+  newText <- translateMarkupWithPandoc text opt
+  return (name, newFormat, newText)
+
+convertTree_TI :: P.Opt -> DocTree -> IO DocTree
+convertTree_TI opt (_, nodeTree) =
+  let converter = convertNode opt
+  in do
+    newTree <- traverse converter nodeTree
+    return (GenericMarkup, newTree)
+     
 --- Writing:
 
 convertLeaf :: DocNode -> FilePath -> P.Opt -> IO ()
@@ -34,8 +51,10 @@ convertInner output = undefined
 convertNode :: DocNode -> FilePath -> FilePath -> Bool -> P.Opt -> IO ()
 convertNode input root output isLeaf opt = undefined
 
-writeFromTree_TI :: Tree DocNode -> FilePath -> P.Opt -> IO ()
-writeFromTree_TI tree output opt = putStrLn $ drawTree $ T.unpack <$> ((\(_, _, x) -> x) <$> tree)
+writeFromTree_TI :: DocTree -> FilePath -> IO ()
+writeFromTree_TI tree output = undefined
+
+--putStrLn $ drawTree $ T.unpack <$> ((\(_, _, x) -> x) <$> tree)
 
 --  let root = fst rootSource
 --      converter = (\isLeaf input -> convertNode input root output isLeaf opt)
