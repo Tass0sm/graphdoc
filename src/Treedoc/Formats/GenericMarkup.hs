@@ -3,11 +3,8 @@ module Treedoc.Formats.GenericMarkup
   , convertTree_GM
   , writeFromTree_GM ) where
 
-import qualified Treedoc.TreeUtil as TreeUtil
 import qualified Text.Pandoc.App as P
 import qualified Data.Text as T
-
-import Control.Applicative (liftA2)
 
 import Data.Foldable (fold)
 import Data.Maybe
@@ -17,6 +14,7 @@ import System.Directory
 import System.FilePath
 
 import Treedoc.Definition
+import Treedoc.TreeUtil
 import Treedoc.Util
 
 -- Impure Code:
@@ -82,9 +80,9 @@ prependToDocNodeName (parentName, _, _) (name, format, text) =
 
 makeTreeWithAbsoluteNames :: FilePath -> Tree DocNode -> Tree DocNode
 makeTreeWithAbsoluteNames prefix tree =
-  TreeUtil.mapWithNewParent prependToDocNodeName (prefix, Nothing, T.empty) tree
+  mapWithNewParent prependToDocNodeName (prefix, Nothing, T.empty) tree
 
 writeFromTree_GM :: DocTree -> FilePath -> IO ()
 writeFromTree_GM (_, tree) output =
   let treeWithAbsoluteNames = makeTreeWithAbsoluteNames output tree
-  in fold $ TreeUtil.mapWithLeafCondition writeNode treeWithAbsoluteNames
+  in fold $ mapWithLeafCondition writeNode treeWithAbsoluteNames

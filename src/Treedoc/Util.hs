@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Treedoc.Util
-  ( translatePath
-  , formatFromFilePath
+  ( formatFromFilePath
   , extensionFromFormat
   , saferListDirectory
   , saferReadFile
@@ -22,10 +21,6 @@ import System.IO.Temp
 import Treedoc.Definition
 
 -- Pure Code:
-
-translatePath :: FilePath -> FilePath -> FilePath -> FilePath
-translatePath root absoluteSource output =
-  normalise (output </> makeRelative root absoluteSource)
 
 formatFromFilePath :: FilePath -> Maybe T.Text
 formatFromFilePath path =

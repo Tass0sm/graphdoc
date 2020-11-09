@@ -5,14 +5,13 @@ module Treedoc.Formats.Texinfo
   , convertTree_TI
   , writeFromTree_TI ) where
 
+import qualified Text.Pandoc.Builder as P
 import qualified Text.Pandoc.App as P
 import qualified Data.Text as T
 
-import Data.Foldable (fold)
-import Data.Tree
+import Text.Pandoc
 
-import System.Directory
-import System.FilePath
+import Data.Tree
 
 import Treedoc.Definition
 import Treedoc.TreeUtil
@@ -37,9 +36,12 @@ convertLeaf opt (name, format, text) = do
   return (name, Just "texinfo", newText)
   
 convertInner :: P.Opt -> DocNode -> IO DocNode
-convertInner opt (name, format, text) =
-  -- TODO: TEMPORARY way of flling inner nodes.
-  return (name, Just "texinfo", "PARENT NODE")
+convertInner opt (name, format, text) = do
+  let pandoc = P.doc $ P.header 1 (P.text $ T.pack name)
+  result <- runIO $ do
+    writeTexinfo def pandoc
+  texinfo <- handleError result
+  return (name, Just "texinfo", texinfo)
     
 convertNode :: P.Opt -> Bool -> DocNode -> IO DocNode
 convertNode opt isLeaf inputNode =
