@@ -31,14 +31,19 @@ readIntoTree_TI path = do
 
 --- Conversion:
 
+wrapPandocWithNamedNode :: String -> Pandoc -> Pandoc
+wrapPandocWithNamedNode name pandoc =
+  mappend (P.doc $ P.header 1 (P.text (T.pack name))) pandoc
+
 convertLeaf :: P.Opt -> DocNode -> DocNode
 convertLeaf opt (name, _, pandoc) =
-  (name, Just "texinfo", pandoc)
+  let pandocWithWrapping = wrapPandocWithNamedNode name pandoc
+  in (name, Just "texinfo", pandocWithWrapping)
 
 convertInner :: P.Opt -> DocNode -> DocNode
 convertInner opt (name, _, pandoc) =
   let pandocWithWrapping = P.doc $ P.header 1 (P.text (T.pack name))
-                           <> P.para "Filler Inserted By Treedoc.\n"
+                           <> P.para "Filler Inserted By Treedoc.\n\n"
   in (name, Just "texinfo", pandocWithWrapping)
 
 convertNode :: P.Opt -> Bool -> DocNode -> DocNode
@@ -61,6 +66,7 @@ writeNode (_, _, pandoc) outputPath = do
     writeTexinfoWithoutTop def pandoc
   text <- handleError result  
   appendFile outputPath (T.unpack text)
+  appendFile outputPath "\n"
 
 writeFromTree_TI :: DocTree -> FilePath -> IO ()
 writeFromTree_TI (_, nodeTree) outputPath =
