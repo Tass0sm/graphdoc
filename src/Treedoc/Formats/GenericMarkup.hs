@@ -27,8 +27,8 @@ getDocSource location = do
   let name = takeBaseName location
   let format = formatFromFilePath location
   let emptyPandoc = doc $ mempty
-  text <- readFile location
-  pandoc <- getPandocASTFromMarkdown $ T.pack text
+  text <- saferReadFile location
+  pandoc <- getPandocASTFromMarkdown text
   return (name, format, pandoc)
 
 unfolder :: FilePath -> IO (DocNode, [FilePath])
@@ -52,8 +52,8 @@ convertLeaf opt (name, _, pandoc) =
 convertNode :: P.Opt -> Bool -> DocNode -> DocNode
 convertNode opt isLeaf node@(name, _, pandoc) =
   if isLeaf
-  then node
-  else convertLeaf opt node
+  then convertLeaf opt node
+  else node
 
 convertTree_GM :: P.Opt -> DocTree -> DocTree
 convertTree_GM opt (_, nodeTree) =

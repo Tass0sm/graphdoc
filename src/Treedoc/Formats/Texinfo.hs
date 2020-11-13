@@ -31,14 +31,26 @@ readIntoTree_TI path = do
 
 --- Conversion:
 
-convertNode :: P.Opt -> DocNode -> DocNode
-convertNode opt (name, _, pandoc) =
+convertLeaf :: P.Opt -> DocNode -> DocNode
+convertLeaf opt (name, _, pandoc) =
   (name, Just "texinfo", pandoc)
+
+convertInner :: P.Opt -> DocNode -> DocNode
+convertInner opt (name, _, pandoc) =
+  let pandocWithWrapping = P.doc $ P.header 1 (P.text (T.pack name))
+                           <> P.para "Filler Inserted By Treedoc.\n"
+  in (name, Just "texinfo", pandocWithWrapping)
+
+convertNode :: P.Opt -> Bool -> DocNode -> DocNode
+convertNode opt isLeaf node =
+  if isLeaf
+  then convertLeaf opt node
+  else convertInner opt node
 
 convertTree_TI :: P.Opt -> DocTree -> DocTree
 convertTree_TI opt (_, nodeTree) =
   let converter = convertNode opt
-      newTree = converter <$> nodeTree
+      newTree = mapWithLeafCondition converter nodeTree
   in (Texinfo, newTree)
      
 --- Writing:
