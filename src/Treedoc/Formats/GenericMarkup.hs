@@ -13,6 +13,8 @@ import Data.Tree
 import System.Directory
 import System.FilePath
 
+import Text.Pandoc.Builder (doc)
+
 import Treedoc.Definition
 import Treedoc.TreeUtil
 import Treedoc.Util
@@ -24,8 +26,10 @@ getDocSource :: FilePath -> IO DocNode
 getDocSource location = do
   let name = takeBaseName location
   let format = formatFromFilePath location
-  contents <- saferReadFile location
-  return (name, format, contents)
+  let emptyPandoc = doc $ mempty
+  text <- readFile location
+  pandoc <- getPandocASTFromMarkdown $ T.pack text
+  return (name, format, pandoc)
 
 unfolder :: FilePath -> IO (DocNode, [FilePath])
 unfolder location = do
@@ -40,29 +44,31 @@ readIntoTree_GM path = do
 
 --- Conversion:
 
-convertNode :: P.Opt -> DocNode -> IO DocNode
-convertNode opt (name, format, text) = 
-  if isJust format
-  then do
-    let newFormat = (P.optTo opt)
-    newText <- translateMarkupWithPandoc text opt
-    return (name, newFormat, newText)
-  else return (name, format, text)
+convertLeaf :: P.Opt -> DocNode -> DocNode
+convertLeaf opt (name, _, pandoc) =
+  let newFormat = (P.optTo opt)
+  in (name, newFormat, pandoc)
 
-convertTree_GM :: P.Opt -> DocTree -> IO DocTree
+convertNode :: P.Opt -> Bool -> DocNode -> DocNode
+convertNode opt isLeaf node@(name, _, pandoc) =
+  if isLeaf
+  then node
+  else convertLeaf opt node
+
+convertTree_GM :: P.Opt -> DocTree -> DocTree
 convertTree_GM opt (_, nodeTree) =
   let converter = convertNode opt
-  in do
-    newTree <- traverse converter nodeTree
-    return (GenericMarkup, newTree)
+      newTree = mapWithLeafCondition converter nodeTree
+  in (GenericMarkup, newTree)
      
 --- Writing:
 
 writeLeaf :: DocNode -> IO ()
-writeLeaf (path, format, text) =
+writeLeaf (path, format, pandoc) = do
   let extension = extensionFromFormat format
-      pathWithExtension = path <.> extension
-  in writeFile pathWithExtension (T.unpack text)
+  let pathWithExtension = path <.> extension
+  newText <- getMarkdownFromPandoc pandoc
+  writeFile pathWithExtension (T.unpack newText)
 
 writeInner :: DocNode -> IO ()
 writeInner (path, _, _) =
@@ -80,7 +86,9 @@ prependToDocNodeName (parentName, _, _) (name, format, text) =
 
 makeTreeWithAbsoluteNames :: FilePath -> Tree DocNode -> Tree DocNode
 makeTreeWithAbsoluteNames prefix tree =
-  mapWithNewParent prependToDocNodeName (prefix, Nothing, T.empty) tree
+  let emptyPandoc = doc $ mempty
+      rootParent = (prefix, Nothing, emptyPandoc)
+  in mapWithNewParent prependToDocNodeName rootParent tree
 
 writeFromTree_GM :: DocTree -> FilePath -> IO ()
 writeFromTree_GM (_, tree) output =

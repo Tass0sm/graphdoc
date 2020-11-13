@@ -29,8 +29,8 @@ convertTreeWithOpts treedocOpt pandocOpt = do
 
   let toFormat = (T.optTo treedocOpt)
   let treeConverter = getTreeConverter toFormat
-  let treeWriter = getTreeWriter toFormat
+  let convertedTree = treeConverter pandocOpt tree
 
-  convertedTree <- treeConverter pandocOpt tree
+  let treeWriter = getTreeWriter toFormat
   treeWriter convertedTree outputPath
 

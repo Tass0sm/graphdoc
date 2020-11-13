@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Treedoc.Util
-  ( formatFromFilePath
+  ( getPandocASTFromMarkdown
+  , getMarkdownFromPandoc
+  , formatFromFilePath
   , extensionFromFormat
   , saferListDirectory
   , saferReadFile
@@ -18,9 +20,22 @@ import System.IO
 import System.FilePath
 import System.IO.Temp
 
+import Text.Pandoc
+import Text.Pandoc.Readers
+
 import Treedoc.Definition
 
 -- Pure Code:
+
+getPandocASTFromMarkdown :: T.Text -> IO Pandoc
+getPandocASTFromMarkdown text = do
+  result <- runIO $ readMarkdown def text
+  handleError result
+
+getMarkdownFromPandoc :: Pandoc -> IO T.Text
+getMarkdownFromPandoc pandoc = do
+  result <- runIO $ writeMarkdown def pandoc
+  handleError result
 
 formatFromFilePath :: FilePath -> Maybe T.Text
 formatFromFilePath path =

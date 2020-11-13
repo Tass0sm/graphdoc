@@ -2,24 +2,6 @@
 @top Top
 
 @menu
-* data::
-@end menu
-
-@node data
-@chapter data
-@anchor{#data}@node Top
-@top Top
-
-@menu
-* 01folder::
-@end menu
-
-@node 01folder
-@chapter 01folder
-@anchor{#folder}@node Top
-@top Top
-
-@menu
 * One!::
 @end menu
 
@@ -56,19 +38,7 @@ two!
 @node Top
 @top Top
 
-@menu
-* 02folder::
-@end menu
-
-@node 02folder
-@chapter 02folder
-@anchor{#folder}
-
-@node Top
-@top Top
-
 Three!
-
 @node Top
 @top Top
 

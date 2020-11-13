@@ -10,6 +10,7 @@ import qualified Text.Pandoc.App as P
 import qualified Data.Text as T
 
 import Text.Pandoc
+import Text.Pandoc.Writers.Texinfo
 
 import Data.Tree
 
@@ -30,36 +31,23 @@ readIntoTree_TI path = do
 
 --- Conversion:
 
-convertLeaf :: P.Opt -> DocNode -> IO DocNode
-convertLeaf opt (name, format, text) = do
-  newText <- translateMarkupWithPandoc text opt
-  return (name, Just "texinfo", newText)
-  
-convertInner :: P.Opt -> DocNode -> IO DocNode
-convertInner opt (name, format, text) = do
-  let pandoc = P.doc $ P.header 1 (P.text $ T.pack name)
-  result <- runIO $ do
-    writeTexinfo def pandoc
-  texinfo <- handleError result
-  return (name, Just "texinfo", texinfo)
-    
-convertNode :: P.Opt -> Bool -> DocNode -> IO DocNode
-convertNode opt isLeaf inputNode =
-  if isLeaf
-  then convertLeaf opt inputNode
-  else convertInner opt inputNode
+convertNode :: P.Opt -> DocNode -> DocNode
+convertNode opt (name, _, pandoc) =
+  (name, Just "texinfo", pandoc)
 
-convertTree_TI :: P.Opt -> DocTree -> IO DocTree
+convertTree_TI :: P.Opt -> DocTree -> DocTree
 convertTree_TI opt (_, nodeTree) =
   let converter = convertNode opt
-  in do
-    newTree <- traverseWithLeafCondition converter nodeTree
-    return (Texinfo, newTree)
+      newTree = converter <$> nodeTree
+  in (Texinfo, newTree)
      
 --- Writing:
   
 writeNode :: DocNode -> FilePath -> IO ()
-writeNode (_, _, text) outputPath =
+writeNode (_, _, pandoc) outputPath = do
+  result <- runIO $ do
+    writeTexinfoWithoutTop def pandoc
+  text <- handleError result  
   appendFile outputPath (T.unpack text)
 
 writeFromTree_TI :: DocTree -> FilePath -> IO ()

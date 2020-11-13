@@ -12,8 +12,8 @@ import Data.Tree
 --- Reading: N/A
 --- Conversion:
 
-convertTree_SC :: P.Opt -> DocTree -> IO DocTree
-convertTree_SC _ docTree = return docTree
+convertTree_SC :: P.Opt -> DocTree -> DocTree
+convertTree_SC _ docTree = docTree
 
 --- Writing:
 
