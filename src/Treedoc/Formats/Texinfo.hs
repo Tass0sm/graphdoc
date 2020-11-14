@@ -60,15 +60,12 @@ convertTree_TI opt (_, nodeTree) =
      
 --- Writing:
   
-writeNode :: DocNode -> FilePath -> IO ()
-writeNode (_, _, pandoc) outputPath = do
-  result <- runIO $ do
-    writeTexinfoWithoutTop def pandoc
-  text <- handleError result  
-  appendFile outputPath (T.unpack text)
-  appendFile outputPath "\n"
-
-writeFromTree_TI :: DocTree -> FilePath -> IO ()
-writeFromTree_TI (_, nodeTree) outputPath =
-  let writer = (\input -> writeNode input outputPath)
-  in foldMap writer (flatten nodeTree)
+writeFromTree_TI :: WriterOptions -> DocTree -> FilePath -> IO ()
+writeFromTree_TI options (_, nodeTree) outputPath =
+  let pandocTree = (\(_, _, x) -> x) <$> nodeTree
+      completePandoc = mconcat $ flatten pandocTree
+  in do
+    result <- runIO $ do
+      writeTexinfo options completePandoc
+    text <- handleError result  
+    writeFile outputPath (T.unpack text)

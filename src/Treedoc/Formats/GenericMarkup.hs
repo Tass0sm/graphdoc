@@ -14,6 +14,7 @@ import System.Directory
 import System.FilePath
 
 import Text.Pandoc.Builder (doc)
+import Text.Pandoc.Options (WriterOptions)
 
 import Treedoc.Definition
 import Treedoc.TreeUtil
@@ -90,7 +91,7 @@ makeTreeWithAbsoluteNames prefix tree =
       rootParent = (prefix, Nothing, emptyPandoc)
   in mapWithNewParent prependToDocNodeName rootParent tree
 
-writeFromTree_GM :: DocTree -> FilePath -> IO ()
-writeFromTree_GM (_, tree) output =
+writeFromTree_GM :: WriterOptions -> DocTree -> FilePath -> IO ()
+writeFromTree_GM options (_, tree) output =
   let treeWithAbsoluteNames = makeTreeWithAbsoluteNames output tree
   in fold $ mapWithLeafCondition writeNode treeWithAbsoluteNames

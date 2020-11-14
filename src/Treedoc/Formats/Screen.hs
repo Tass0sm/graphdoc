@@ -4,6 +4,8 @@ module Treedoc.Formats.Screen
 
 import qualified Text.Pandoc.App as P
 
+import Text.Pandoc.Options (WriterOptions)
+
 import Treedoc.Definition
 
 import Data.Tree
@@ -26,7 +28,7 @@ formatTree tree = drawTree $ formatNode <$> tree
 printTree :: Tree DocNode -> IO ()
 printTree tree = putStrLn $ formatTree tree
 
-writeFromTree_SC :: DocTree -> FilePath -> IO ()
-writeFromTree_SC (format, tree) _ = do
+writeFromTree_SC :: WriterOptions -> DocTree -> FilePath -> IO ()
+writeFromTree_SC options (format, tree) _ = do
   putStrLn $ show format
   printTree tree

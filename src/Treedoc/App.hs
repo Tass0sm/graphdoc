@@ -6,6 +6,10 @@
 import qualified Text.Pandoc.App as P
 import qualified Treedoc.App.Opt as T
 
+import Text.Pandoc
+import Text.Pandoc.Options
+import Text.Pandoc.App.OutputSettings
+
 import Treedoc.App.CommandLineOptions
 import Treedoc.Readers
 import Treedoc.Converters
@@ -31,6 +35,11 @@ convertTreeWithOpts treedocOpt pandocOpt = do
   let treeConverter = getTreeConverter toFormat
   let convertedTree = treeConverter pandocOpt tree
 
+  writerOptionsResult <- runIO $ do
+    outputSettings <- optToOutputSettings pandocOpt
+    return $ outputWriterOptions outputSettings
+  writerOptions <- handleError writerOptionsResult
+  
   let treeWriter = getTreeWriter toFormat
-  treeWriter convertedTree outputPath
+  treeWriter writerOptions convertedTree outputPath
 
