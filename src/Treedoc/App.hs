@@ -29,7 +29,11 @@ convertTreeWithOpts treedocOpt pandocOpt = do
 
   let fromFormat = (T.optFrom treedocOpt)
   let treeReader = getTreeReader fromFormat
-  tree <- treeReader inputPath
+
+  possibleTree <- runIO $ do
+    treeReader inputPath
+
+  tree <- handleError possibleTree
 
   let toFormat = (T.optTo treedocOpt)
   let treeConverter = getTreeConverter toFormat

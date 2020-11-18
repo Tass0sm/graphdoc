@@ -59,6 +59,8 @@ library
                      , pandoc-types
                      , filepath
                      , temporary
+                     , mtl
+                     , bytestring
 
   -- Directories containing source files.
   hs-source-dirs:      src

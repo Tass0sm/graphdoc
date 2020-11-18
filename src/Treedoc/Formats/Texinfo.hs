@@ -21,10 +21,10 @@ import Treedoc.Util
 -- Impure Code:
 --- Reading:
 
-unfolder :: FilePath -> IO (DocNode, [FilePath])
+unfolder :: FilePath -> PandocIO (DocNode, [FilePath])
 unfolder path = undefined
 
-readIntoTree_TI :: FilePath -> IO (DocTree)
+readIntoTree_TI :: FilePath -> PandocIO (DocTree)
 readIntoTree_TI path = do
   tree <- (unfoldTreeM_BF unfolder) path
   return (Texinfo, tree)

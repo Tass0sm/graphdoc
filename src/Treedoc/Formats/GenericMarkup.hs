@@ -6,6 +6,8 @@ module Treedoc.Formats.GenericMarkup
 import qualified Text.Pandoc.App as P
 import qualified Data.Text as T
 
+import Control.Monad.Trans
+
 import Data.Foldable (fold)
 import Data.Maybe
 import Data.Tree
@@ -13,6 +15,7 @@ import Data.Tree
 import System.Directory
 import System.FilePath
 
+import Text.Pandoc
 import Text.Pandoc.Builder (doc)
 import Text.Pandoc.Options (WriterOptions)
 
@@ -27,20 +30,18 @@ getDocSource :: FilePath -> IO DocNode
 getDocSource location = do
   let name = takeBaseName location
   let format = formatFromFilePath location
-  let emptyPandoc = doc $ mempty
-  text <- saferReadFile location
-  pandoc <- getPandocASTFromMarkdown text
+  pandoc <- getPandocFromFileWithFormat format location def
   return (name, format, pandoc)
 
-unfolder :: FilePath -> IO (DocNode, [FilePath])
-unfolder location = do
-  docSource <- getDocSource location
-  subFiles <- saferListDirectory location
-  return (docSource, subFiles)
+unfolder :: FilePath -> PandocIO (DocNode, [FilePath])
+unfolder location = liftIO $ do
+    docSource <- getDocSource location
+    subFiles <- saferListDirectory location
+    return (docSource, subFiles)
 
-readIntoTree_GM :: FilePath -> IO (DocTree)
+readIntoTree_GM :: FilePath -> PandocIO DocTree
 readIntoTree_GM path = do
-  tree <- (unfoldTreeM_BF unfolder) path
+  tree <- unfoldTreeM_BF unfolder path
   return (GenericMarkup, tree)
 
 --- Conversion:
@@ -68,7 +69,7 @@ writeLeaf :: DocNode -> IO ()
 writeLeaf (path, format, pandoc) = do
   let extension = extensionFromFormat format
   let pathWithExtension = path <.> extension
-  newText <- getMarkdownFromPandoc pandoc
+  newText <- getMarkupFromPandocWithFormat format pandoc def
   writeFile pathWithExtension (T.unpack newText)
 
 writeInner :: DocNode -> IO ()

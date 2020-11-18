@@ -5,6 +5,8 @@ module Treedoc.Util
   , getMarkdownFromPandoc
   , formatFromFilePath
   , extensionFromFormat
+  , getPandocFromFileWithFormat
+  , getMarkupFromPandocWithFormat
   , saferListDirectory
   , saferReadFile
   , convertFileWithOpts
@@ -13,7 +15,12 @@ module Treedoc.Util
 
 import qualified Text.Pandoc.App as P
 import qualified Data.Text as T
+import qualified Data.ByteString as BS
 import qualified Data.Char as C
+
+import Control.Monad.Trans (liftIO)
+
+import Data.Maybe (fromMaybe)
 
 import System.Directory
 import System.IO
@@ -22,20 +29,11 @@ import System.IO.Temp
 
 import Text.Pandoc
 import Text.Pandoc.Readers
+import Text.Pandoc.Writers
 
 import Treedoc.Definition
 
 -- Pure Code:
-
-getPandocASTFromMarkdown :: T.Text -> IO Pandoc
-getPandocASTFromMarkdown text = do
-  result <- runIO $ readMarkdown def text
-  handleError result
-
-getMarkdownFromPandoc :: Pandoc -> IO T.Text
-getMarkdownFromPandoc pandoc = do
-  result <- runIO $ writeMarkdown def pandoc
-  handleError result
 
 formatFromFilePath :: FilePath -> Maybe T.Text
 formatFromFilePath path =
@@ -126,6 +124,46 @@ extensionFromFormat format =
     Nothing             ->                 ""
 
 -- Impure 
+
+getPandocFromFileWithFormat :: Maybe T.Text -> FilePath -> ReaderOptions -> IO Pandoc
+getPandocFromFileWithFormat format file options = do
+  let certainFormat = fromMaybe "markdown" format
+  let possibleReader = lookup certainFormat readers
+  let reader = fromMaybe (TextReader readMarkdown) possibleReader
+  possiblePandoc <- runIO $ getPandocFromFileWithReader reader file options
+  handleError possiblePandoc
+
+getPandocFromFileWithReader :: Reader PandocIO -> FilePath -> ReaderOptions -> PandocIO Pandoc
+getPandocFromFileWithReader (TextReader reader) file options = do
+  text <- liftIO $ do
+    saferReadFile file
+  reader options text
+-- getPandocFromFileWithReader (ByteStringReader reader) file options = do
+--   text <- liftIO $ do
+--     BS.readFile file
+--   reader options text
+
+getMarkupFromPandocWithFormat :: Maybe T.Text -> Pandoc -> WriterOptions -> IO T.Text
+getMarkupFromPandocWithFormat format pandoc options = do
+  let certainFormat = fromMaybe "markdown" format
+  let possibleWriter = lookup certainFormat writers
+  let writer = fromMaybe (TextWriter writeMarkdown) possibleWriter
+  possibleText <- runIO $ getMarkupFromPandocWithWriter writer pandoc options
+  handleError possibleText
+
+getMarkupFromPandocWithWriter :: Writer PandocIO -> Pandoc -> WriterOptions -> PandocIO T.Text
+getMarkupFromPandocWithWriter (TextWriter writer) pandoc options = do
+  writer options pandoc
+
+getPandocASTFromMarkdown :: T.Text -> IO Pandoc
+getPandocASTFromMarkdown text = do
+  result <- runIO $ readMarkdown def text
+  handleError result
+
+getMarkdownFromPandoc :: Pandoc -> IO T.Text
+getMarkdownFromPandoc pandoc = do
+  result <- runIO $ writeMarkdown def pandoc
+  handleError result
 
 listDirectoryAbsolute :: FilePath -> IO [FilePath]
 listDirectoryAbsolute path = do
