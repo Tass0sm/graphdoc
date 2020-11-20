@@ -23,6 +23,10 @@ import Treedoc.Definition
 import Treedoc.TreeUtil
 import Treedoc.Util
 
+-- GenericMarkup object:
+
+newtype GenericMarkup = GenericMarkup DocTree
+
 -- Impure Code:
 --- Reading:
 
@@ -96,3 +100,10 @@ writeFromTree_GM :: WriterOptions -> DocTree -> FilePath -> IO ()
 writeFromTree_GM options (_, tree) output =
   let treeWithAbsoluteNames = makeTreeWithAbsoluteNames output tree
   in fold $ mapWithLeafCondition writeNode treeWithAbsoluteNames
+
+-- Typeclass Work:
+
+instance TreedocReadable GenericMarkup where
+  read = do
+    tree <- unfoldTreeM_BF unfolder path
+    return (GenericMarkup, tree)

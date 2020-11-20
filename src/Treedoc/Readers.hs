@@ -11,6 +11,8 @@ import Treedoc.Definition
 import Treedoc.Formats.GenericMarkup (readIntoTree_GM)
 import Treedoc.Formats.Texinfo (readIntoTree_TI)
 
+
+
 getTreeReader :: TreeFormat -> FilePath -> PandocIO (DocTree)
 getTreeReader format = case format of
   GenericMarkup -> readIntoTree_GM
