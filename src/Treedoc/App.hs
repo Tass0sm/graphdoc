@@ -36,7 +36,7 @@ convertTreeWithOpts treedocOpt pandocOpt = do
   tree <- handleError possibleTree
 
   let toFormat = (T.optTo treedocOpt)
-  let treeConverter = getTreeConverter toFormat
+  let (TreeConverter treeConverter) = getTreeConverter toFormat
   let convertedTree = treeConverter pandocOpt tree
 
   writerOptionsResult <- runIO $ do
@@ -44,6 +44,6 @@ convertTreeWithOpts treedocOpt pandocOpt = do
     return $ outputWriterOptions outputSettings
   writerOptions <- handleError writerOptionsResult
   
-  let treeWriter = getTreeWriter toFormat
+  let (TreeWriter treeWriter) = getTreeWriter toFormat
   treeWriter writerOptions convertedTree outputPath
 

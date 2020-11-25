@@ -1,5 +1,6 @@
 module Treedoc.Writers
-  ( getTreeWriter
+  ( TreedocWriter (..)
+  , getTreeWriter
   , writeFromTree_GM
   , writeFromTree_TI ) where
 
@@ -14,8 +15,14 @@ import Treedoc.Definition
 
 import Data.Tree
 
-getTreeWriter :: Maybe TreeFormat -> WriterOptions -> DocTree -> FilePath -> IO ()
-getTreeWriter format = case format of
-  Just GenericMarkup -> writeFromTree_GM
-  Just Texinfo -> writeFromTree_TI
-  Nothing -> writeFromTree_SC
+data TreedocWriter = TreeWriter (WriterOptions -> DocTree -> FilePath -> IO ())
+
+-- | Association list of tree formats and readers.
+treedocWriters :: [(TreeFormat, TreedocWriter)]
+treedocWriters = [(GenericMarkup, TreeWriter writeFromTree_GM)
+                 ,(Texinfo,       TreeWriter writeFromTree_TI)]
+
+getTreeWriter :: TreeFormat -> TreedocWriter
+getTreeWriter format = case lookup format treedocWriters of
+  Nothing -> TreeWriter writeFromTree_SC
+  Just w -> w

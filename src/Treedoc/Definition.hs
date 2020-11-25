@@ -9,7 +9,7 @@ import Data.Text (Text)
 import Data.Tree (Tree)
 
 -- The types of tree recognized by treedoc.
-data TreeFormat = GenericMarkup | Texinfo
+data TreeFormat = GenericMarkup | Texinfo | Screen
   deriving (Show, Read, Eq)
 
 -- A node of documentation, consisting of the node's name, and node's format as

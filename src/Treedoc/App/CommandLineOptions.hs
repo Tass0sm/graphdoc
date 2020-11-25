@@ -11,12 +11,12 @@ import System.Console.GetOpt
 import Treedoc.App.Opt
 import Treedoc.Definition
 
-parseOutputFormat :: String -> Maybe TreeFormat
+parseOutputFormat :: String -> TreeFormat
 parseOutputFormat arg =
   case (map toLower arg) of
-    "genericmarkup" -> Just GenericMarkup
-    "texinfo" -> Just Texinfo
-    _ -> Nothing
+    "genericmarkup" -> GenericMarkup
+    "texinfo" -> Texinfo
+    _ -> Screen
 
 -- A list of option descriptions. The argument to the OptDescr type "(Opt -> IO
 -- Opt)" means that for each flag, an argument might be taken and return a
