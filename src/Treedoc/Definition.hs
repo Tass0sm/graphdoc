@@ -10,7 +10,7 @@ import Data.Tree (Tree)
 
 -- The types of tree recognized by treedoc.
 data TreeFormat = GenericMarkup | Texinfo
-  deriving (Show, Read)
+  deriving (Show, Read, Eq)
 
 -- A node of documentation, consisting of the node's name, and node's format as
 -- a possibly lowercase string (convention chosen by pandoc, not me), and its
