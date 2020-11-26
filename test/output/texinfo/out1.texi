@@ -1,0 +1,10 @@
+@node Top
+@top Top
+
+@menu
+* example1::
+@end menu
+
+@node example1
+@chapter example1
+@anchor{#example1}
