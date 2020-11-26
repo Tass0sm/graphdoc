@@ -5,11 +5,12 @@ import qualified PandocOptionsUtil as P
 import qualified Treedoc as T
 
 test1args :: [String]
-test1args = [ "--tree-to=genericmarkup"
-            , "--tree-out=/home/tassos/Software/treedoc/test/output/genericmarkup/out1/"
+test1args = [ "--tree-to=texinfo"
+            , "--tree-out=/home/tassos/Software/treedoc/test/output/texinfo/out1.texi"
             , "--from=markdown"
-            , "--to=org"
-            , "data/genericmarkup/example1" ]
+            , "--to=texinfo"
+            , "-s"
+            , "/home/tassos/Software/treedoc/test/data/genericmarkup/example1" ]
 
 test1 :: IO ()
 test1 = do
@@ -17,5 +18,20 @@ test1 = do
   pandocOpt <- P.parseOptionsFromArgs otherArgs P.options P.defaultOpts
   T.convertTreeWithOpts treedocOpt pandocOpt
 
+test2args :: [String]
+test2args = [ "--tree-to=genericmarkup"
+            , "--tree-out=/home/tassos/Software/treedoc/test/output/genericmarkup/out1/"
+            , "--from=markdown"
+            , "--to=org"
+            , "/home/tassos/Software/treedoc/test/data/genericmarkup/example1" ]
+
+test2 :: IO ()
+test2 = do
+  (treedocOpt, otherArgs) <- T.parseOptionsFromArgs test2args T.options T.defaultOpts
+  pandocOpt <- P.parseOptionsFromArgs otherArgs P.options P.defaultOpts
+  T.convertTreeWithOpts treedocOpt pandocOpt
+
 main :: IO ()
-main = test1
+main = do
+  test1
+  test2
