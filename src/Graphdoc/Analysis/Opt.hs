@@ -4,7 +4,7 @@ module Graphdoc.Analysis.Opt
 
 import Graphdoc.Definition
 
--- Options for a graphdoc analysis run. 
+-- Options for a graphdoc analysis run.
 data Opt = Opt
     { optFormat     :: DocFormat      -- Format
     , optInputPath  :: Maybe FilePath -- Input File/Directory Location

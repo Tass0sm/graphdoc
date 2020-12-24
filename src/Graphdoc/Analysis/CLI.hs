@@ -66,5 +66,3 @@ parseOptions :: IO Opt
 parseOptions = do
   args <- getArgs
   parseOptionsFromArgs args
-
-
