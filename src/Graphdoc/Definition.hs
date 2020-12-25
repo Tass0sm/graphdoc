@@ -1,14 +1,27 @@
 module Graphdoc.Definition
-  ( DocFormat (..) ) where
+  ( DocFormat (..)
+  , DocSection
+  , DocGraph
+  , DocRelation ) where
+
+import Algebra.Graph.Labelled
+import Data.Text (Text)
 
 -- The types of tree recognized by treedoc.
 data DocFormat = GenericMarkup | Texinfo
   deriving (Show, Read, Eq)
 
--- A node of documentation, consisting of the node's name, and node's format as
--- a possibly lowercase string (convention chosen by pandoc, not me), and its
--- contents. Like a subsection of a document. No format == Nothing
--- type DocNode = (String, Maybe Text, Pandoc)
+-- Documentation can be represented as a labelled, directed graph of
+-- documentation sections. These sections can be seperate files, but it is
+-- limiting to assume they always are. Other options at least include complete
+-- bodies of text. So for now we will say:
+data DocSection = File FilePath |
+                  Body Text
 
--- A Documentation Tree, consisting of a format and tree of documentation nodes.
--- type DocTree = (TreeFormat, Tree DocNode)
+type DocGraph = Graph String DocSection
+
+-- For building a graph, one might need to get the relationship of each
+-- DocSection. Sometimes, this relationship doesn't exist, so I use Maybe.
+type DocRelation = DocSection -> Maybe DocSection
+
+-- Another way 

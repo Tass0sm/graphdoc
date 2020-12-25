@@ -19,9 +19,9 @@ import Text.Pandoc
 import Text.Pandoc.Builder (doc)
 import Text.Pandoc.Options (WriterOptions)
 
-import Treedoc.Definition
-import Treedoc.TreeUtil
-import Treedoc.Util
+import Graphdoc.Definition
+import Graphdoc.TreeUtil
+import Graphdoc.Util
 
 -- Impure Code:
 --- Reading:

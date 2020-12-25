@@ -14,3 +14,4 @@ runAnalysis opt = do
   let outputPath = fromMaybe "." (optOutputPath opt)
   let format = optFormat opt
   putStrLn inputPath
+
