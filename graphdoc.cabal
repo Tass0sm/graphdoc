@@ -34,10 +34,12 @@ library
   exposed-modules:     Graphdoc
                      , Graphdoc.Analysis
                      , Graphdoc.Conversion
+                     , Graphdoc.Output
 
   -- Modules included in this library but not exported.
-  other-modules:       Graphdoc.Analysis.Opt
-                     , Graphdoc.Analysis.CLI
+  other-modules:       Graphdoc.Analysis.HTML
+                     , Graphdoc.Conversion.Texinfo
+                     , Graphdoc.Output.Texinfo
                      , Graphdoc.Definition
 
   -- LANGUAGE extensions used by modules in this package.

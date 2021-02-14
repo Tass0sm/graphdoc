@@ -1,6 +1,8 @@
 module Graphdoc
   ( module Graphdoc.Analysis
-  , module Graphdoc.Conversion ) where
+  , module Graphdoc.Conversion
+  , module Graphdoc.Output ) where
 
 import Graphdoc.Analysis
 import Graphdoc.Conversion
+import Graphdoc.Output

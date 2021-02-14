@@ -1,8 +1,4 @@
 module Graphdoc.Conversion
-  ( runConversion ) where
+  ( convertToTexinfo ) where
 
-import Graphdoc.Conversion.Opt
-
-runConversion :: Opt -> IO ()
-runConversion opt = do
-  putStrLn "hello"
+import Graphdoc.Conversion.Texinfo (convertToTexinfo)
