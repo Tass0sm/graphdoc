@@ -8,9 +8,13 @@ module Main where
 -- convertMain :: [String] -> IO ()
 -- convertMain args = undefined
 
+import Control.Monad
+import Graphdoc.Util
+
 main :: IO ()
 main = do
-  putStrLn "Under Construction"
+  files <- listDirectoryRecursively "./src"
+  mapM_ putStrLn files
 
 --  (subcommand:args) <- getArgs
 --  case subcommand of

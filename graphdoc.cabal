@@ -35,6 +35,7 @@ library
                      , Graphdoc.Analysis
                      , Graphdoc.Conversion
                      , Graphdoc.Output
+                     , Graphdoc.Util
 
   -- Modules included in this library but not exported.
   other-modules:       Graphdoc.Analysis.HTML
