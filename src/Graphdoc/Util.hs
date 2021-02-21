@@ -1,5 +1,7 @@
 module Graphdoc.Util
-  ( listDirectoryRecursively ) where
+  ( listDirectoryRecursively
+  , getSourceFiles
+  , Predicate ) where
 
 import Control.Monad
 
@@ -16,3 +18,17 @@ listDirectoryRecursively topPath = do
     concat <$> forM paths listDirectoryRecursively
     else do
     return [topPath]
+
+type Predicate = FilePath -> Bool
+
+getSourceFiles :: Predicate -> FilePath -> IO [FilePath]
+getSourceFiles p topPath = do
+  files <- listDirectoryRecursively topPath
+  -- TODO: This can later be made with filterM for better predicates. Skipping
+  -- for now.
+  return $ filter p files
+
+readFromSource :: DocSource -> Text
+-- This isn't lazy but it'll leave a 
+readFromSource (File path) = pack <$> readFile path
+readFromSource (Body text) = text

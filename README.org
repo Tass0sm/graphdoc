@@ -39,7 +39,7 @@ project will try to be the analog for common structures of markup.
 *** HTML Example
 
     Each file contains the source for one vertex, so getting every vertex is mostly
-    accomplished by recursively listing every file in a directory.
+    accomplished by finding every file. 
 
     #+begin_src haskell
       getFilesRecursively :: FilePath -> IO [FilePath]
@@ -62,7 +62,7 @@ project will try to be the analog for common structures of markup.
     #+begin_src haskell
       getMetadata :: FilePath -> Meta
 
-      getVertices :: FilePath -> IO [FilePath]
+      getVertices :: FilePath -> IO [DocNode]
       getVertices topdir = do
         files <- getSourceFiles topdir
         ...
