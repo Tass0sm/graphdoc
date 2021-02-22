@@ -23,10 +23,10 @@ getDocNodes topdir = do
   let metadata = map getMetadata files
   return $ zip metadata sources
 
-
-extractLinks :: DocSource -> [String]
-extractLinks source = 
-
+extractLinks :: FilePath -> IO [String]
+extractLinks path = handle (\_ -> return []) $
+  bracket (openFile path ReadMode) (hClose) $ \h -> do
+  
 
 getOutEdges :: DocNode -> [DocNode] -> IO [DocEdge]
 getOutEdges = undefined
