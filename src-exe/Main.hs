@@ -9,12 +9,19 @@ module Main where
 -- convertMain args = undefined
 
 import Control.Monad
-import Graphdoc.Util
+import Graphdoc.Analysis
+import System.Environment
+import Algebra.Graph.Export.Dot
 
 main :: IO ()
 main = do
-  files <- listDirectoryRecursively "./src"
-  mapM_ putStrLn files
+  arg <- head <$> getArgs
+  graph <- analyzeHTML arg
+  putStrLn $ exportAsIs graph
+  --mapM_ (putStrLn . show) pairs
+
+--  files <- listDirectoryRecursively "./src"
+--  mapM_ putStrLn files
 
 --  (subcommand:args) <- getArgs
 --  case subcommand of

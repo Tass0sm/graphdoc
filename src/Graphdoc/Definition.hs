@@ -6,6 +6,7 @@ module Graphdoc.Definition
   , Meta (..) ) where
 
 import Algebra.Graph.Labelled
+import Text.Pandoc.Definition
 import Data.Text (Text)
 
 -- All the information for a node in the graph (metadata and source).
@@ -16,7 +17,8 @@ data Meta = Meta
   } deriving (Show)
 
 data DocSource = File FilePath |
-                 Body Text
+                 Body Text |
+                 Doc Pandoc
 
 -- The node type
 type DocNode = (Meta, DocSource)

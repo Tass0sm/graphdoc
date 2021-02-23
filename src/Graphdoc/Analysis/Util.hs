@@ -1,4 +1,4 @@
-module Graphdoc.Util
+module Graphdoc.Analysis.Util
   ( listDirectoryRecursively
   , getSourceFiles
   , Predicate ) where
@@ -27,8 +27,3 @@ getSourceFiles p topPath = do
   -- TODO: This can later be made with filterM for better predicates. Skipping
   -- for now.
   return $ filter p files
-
-readFromSource :: DocSource -> Text
--- This isn't lazy but it'll leave a 
-readFromSource (File path) = pack <$> readFile path
-readFromSource (Body text) = text
