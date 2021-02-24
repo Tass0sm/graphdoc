@@ -7,7 +7,7 @@ import Graphdoc.Analysis.HTML.Links
 
 import qualified Data.Text.IO as TIO
 
-import Algebra.Graph.Labelled
+import Algebra.Graph.Labelled.AdjacencyMap
 import System.FilePath
 import System.Directory (canonicalizePath)
 import Control.Exception
@@ -42,20 +42,19 @@ getEveryEdge topdir = do
 ---------------------------------------------------------------------------
 --                     Convert Edge List to Vertices                     --
 ---------------------------------------------------------------------------    
-getMetadata :: FilePath -> Meta
-getMetadata file = Meta { metaFormat = "HTML"
-                        , metaTitle = "Unknown"
-                        , metaPath = file
-                        }
+getMetadata :: FilePath -> DocMeta
+getMetadata file = DocMeta { docMetaFormat = "HTML"
+                           , docMetaTitle = "Unknown"
+                           , docMetaPath = file
+                           }
 
 getVertex :: FilePath -> DocNode
-getVertex file = (getMetadata file, File file)
+getVertex file = DocNode (getMetadata file) (File file)
 
-analyzeHTML :: FilePath -> IO (Graph String String)
+analyzeHTML :: FilePath -> IO DocGraph
 analyzeHTML topdir = do
   edgeList <- getEveryEdge topdir
-  --let docEdgeList = map toDocEdge edgeList
-  return $ edges edgeList
-
---    where toDocEdge = \(rel, origin, dest) ->
---            (rel, getVertex origin, getVertex dest)
+  let docEdgeList = map toDocEdge edgeList
+  return $ edges docEdgeList
+    where toDocEdge = \(rel, origin, dest) ->
+                        (rel, getVertex origin, getVertex dest)

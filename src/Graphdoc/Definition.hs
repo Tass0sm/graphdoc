@@ -1,19 +1,19 @@
 module Graphdoc.Definition
   ( DocGraph
   , DocSource (..)
-  , DocNode
+  , DocNode (..)
   , DocEdge
-  , Meta (..) ) where
+  , DocMeta (..) ) where
 
-import Algebra.Graph.Labelled
+import Algebra.Graph.Labelled.AdjacencyMap
 import Text.Pandoc.Definition
 import Data.Text (Text)
 
 -- All the information for a node in the graph (metadata and source).
-data Meta = Meta
-  { metaFormat :: String
-  , metaTitle  :: String
-  , metaPath   :: FilePath
+data DocMeta = DocMeta
+  { docMetaFormat :: String
+  , docMetaTitle  :: String
+  , docMetaPath   :: FilePath
   } deriving (Show)
 
 data DocSource = File FilePath |
@@ -21,10 +21,18 @@ data DocSource = File FilePath |
                  Doc Pandoc
 
 -- The node type
-type DocNode = (Meta, DocSource)
+data DocNode = DocNode DocMeta DocSource
 
+instance Eq DocNode where
+  (==) (DocNode m1 _) (DocNode m2 _) =
+    (docMetaPath m1) == (docMetaPath m2)
+
+instance Ord DocNode where
+  compare (DocNode m1 _) (DocNode m2 _) =
+    compare (docMetaPath m1) (docMetaPath m2)
+                       
 -- A standalone edge, for building graphs
 type DocEdge = (String, DocNode, DocNode)
 
 -- A labelled graph of nodes, which captures a body of documentation.
-type DocGraph = Graph String DocNode
+type DocGraph = AdjacencyMap String DocNode

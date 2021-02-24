@@ -5,6 +5,9 @@ module Graphdoc.Conversion.Util
 
 import Graphdoc.Definition
 
+convertToContentGraph :: DocGraph -> DocGraph
+convertToContentGraph = undefined
+
 convertToIRGraph :: DocGraph -> DocGraph
 convertToIRGraph = undefined
 

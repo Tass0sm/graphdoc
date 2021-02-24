@@ -17,7 +17,8 @@ main :: IO ()
 main = do
   arg <- head <$> getArgs
   graph <- analyzeHTML arg
-  putStrLn $ exportAsIs graph
+  putStrLn "WIP"
+  --putStrLn $ exportAsIs graph
   --mapM_ (putStrLn . show) pairs
 
 --  files <- listDirectoryRecursively "./src"
