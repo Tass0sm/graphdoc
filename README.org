@@ -4,8 +4,9 @@ Documentation lacks uniformity and portability. However, documentation usually
 has a common structure: bits of markup text content linked together in a few
 typical ways (previous, up, next, links, etc.).
 
-There are already nice tools for converting between markup ([[https://pandoc.org/][Pandoc]]). This
-project will try to be the analog for common structures of markup.
+There are already nice tools for converting between markup languages
+([[https://pandoc.org/][Pandoc]]). This project will try to be the analog for common /structures/ of
+markup text.
 
 * Design
 
@@ -96,8 +97,7 @@ project will try to be the analog for common structures of markup.
 
 ** TODO Conversion
 ** TODO Output
-
 * Motivation
 
   Local documentation resources are more complete, editable, quickly searchable
-  (Example: ~C-h S~ in emacs), and permanently yours.
+  (Example: ~C-h S~ in emacs), and in /your/ possession permanently.
