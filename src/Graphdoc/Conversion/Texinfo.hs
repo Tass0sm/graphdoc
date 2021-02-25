@@ -3,5 +3,5 @@ module Graphdoc.Conversion.Texinfo
 
 import Graphdoc.Definition
 
-convertToTexinfo :: DocGraph -> DocGraph
+convertToTexinfo :: DocGraph -> IO DocGraph
 convertToTexinfo = undefined
