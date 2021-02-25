@@ -30,7 +30,10 @@ instance Eq DocNode where
 instance Ord DocNode where
   compare (DocNode m1 _) (DocNode m2 _) =
     compare (docMetaPath m1) (docMetaPath m2)
-                       
+
+instance Show DocNode where
+  show (DocNode m1 _) = docMetaPath m1
+
 -- A standalone edge, for building graphs
 type DocEdge = (String, DocNode, DocNode)
 

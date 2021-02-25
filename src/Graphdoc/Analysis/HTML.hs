@@ -44,7 +44,7 @@ getEveryEdge topdir = do
 ---------------------------------------------------------------------------    
 getMetadata :: FilePath -> DocMeta
 getMetadata file = DocMeta { docMetaFormat = "HTML"
-                           , docMetaTitle = "Unknown"
+                           , docMetaTitle = takeBaseName file
                            , docMetaPath = file
                            }
 
