@@ -1,5 +1,11 @@
 module Main where
 
+import Control.Monad
+import Graphdoc.Analysis
+import System.Environment
+import Algebra.Graph.Export.Dot
+import Algebra.Graph.Labelled.AdjacencyMap
+
 -- analyzeMain :: [String] -> IO ()
 -- analyzeMain args = do
 --   opt <- A.parseOptionsFromArgs args
@@ -8,16 +14,13 @@ module Main where
 -- convertMain :: [String] -> IO ()
 -- convertMain args = undefined
 
-import Control.Monad
-import Graphdoc.Analysis
-import System.Environment
-import Algebra.Graph.Export.Dot
-
 main :: IO ()
 main = do
   arg <- head <$> getArgs
   graph <- analyzeHTML arg
-  putStrLn "WIP"
+  let sGraph = gmap show graph
+  putStrLn $ exportAsIs sGraph
+
   --putStrLn $ exportAsIs graph
   --mapM_ (putStrLn . show) pairs
 
@@ -29,11 +32,3 @@ main = do
 --    "analyze" -> analyzeMain args
 --    "convert" -> convertMain args
 --    otherwise -> putStrLn "Bad Sub-command."
-  
---  args <- getArgs
---  (treedocOpt, otherArgs) <- T.parseOptionsFromArgs args T.options T.defaultOpts
---  pandocOpt <- P.parseOptionsFromArgs otherArgs P.options P.defaultOpts
---  T.convertTreeWithOpts treedocOpt pandocOpt
-
---  E.catch (parseOptions options defaultOpts >>= convertWithOpts)
---          (handleError . Left)
