@@ -7,6 +7,7 @@ import Graphdoc.Analysis.HTML.Links
 
 import qualified Data.Text.IO as TIO
 
+import Text.Pandoc
 import Algebra.Graph.Labelled.AdjacencyMap
 import System.FilePath
 import System.Directory (canonicalizePath)
@@ -25,8 +26,8 @@ resolveLink originFile link =
       rawPath = originDir </> link
   in canonicalizePath rawPath
 
-getDocEdges :: FilePath -> IO [(String,  FilePath, FilePath)]
-getDocEdges file = do
+getFileEdges :: FilePath -> IO [(String,  FilePath, FilePath)]
+getFileEdges file = do
   src <- TIO.readFile file
   let links = getNamedLinks src
   mapM resolveLinkPair links
@@ -34,10 +35,10 @@ getDocEdges file = do
             newRef <- resolveLink file ref
             return (rel, file, newRef)
 
-getEveryEdge :: FilePath -> IO [(String, FilePath, FilePath)]
-getEveryEdge topdir = do
+getEveryFileEdge :: FilePath -> IO [(String, FilePath, FilePath)]
+getEveryFileEdge topdir = do
   files <- getSourceFiles sourceP topdir
-  concat <$> mapM getDocEdges files
+  concat <$> mapM getFileEdges files
 
 ---------------------------------------------------------------------------
 --                     Convert Edge List to Vertices                     --
@@ -48,13 +49,22 @@ getMetadata file = DocMeta { docMetaFormat = "HTML"
                            , docMetaPath = file
                            }
 
-getVertex :: FilePath -> DocNode
-getVertex file = DocNode (getMetadata file) (File file)
+getVertex :: FilePath -> IO DocNode
+getVertex file = do
+  text <- TIO.readFile file
+  let result = runPure $ readHtml def text
+  doc <- handleError result
+  return $ DocNode (getMetadata file) (Doc doc)
+
+toDocEdge :: (String, FilePath, FilePath) -> IO (String, DocNode, DocNode)
+toDocEdge (s, f1, f2) = do
+  v1 <- getVertex f1
+  v2 <- getVertex f2
+  return (s, v1, v2)
 
 analyzeHTML :: FilePath -> IO DocGraph
 analyzeHTML topdir = do
-  edgeList <- getEveryEdge topdir
-  let docEdgeList = map toDocEdge edgeList
+  fileEdgeList <- getEveryFileEdge topdir
+  docEdgeList <- mapM toDocEdge fileEdgeList
   return $ edges docEdgeList
-    where toDocEdge = \(rel, origin, dest) ->
-                        (rel, getVertex origin, getVertex dest)
+

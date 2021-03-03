@@ -16,8 +16,7 @@ data DocMeta = DocMeta
   , docMetaPath   :: FilePath
   } deriving (Show)
 
-data DocSource = File FilePath |
-                 Body Text |
+data DocSource = Body Text |
                  Doc Pandoc
 
 -- The node type
