@@ -55,6 +55,7 @@ library
                      , directory
                      , algebraic-graphs
                      , pandoc-types
+                     , pandoc
                      , filepath
                      , tagsoup
                      , path

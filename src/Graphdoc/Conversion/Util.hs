@@ -1,29 +1,30 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Graphdoc.Conversion.Util
-    ( convertToIRGraph
-    , mapOverNodes
-    ) where
+    ( makeConverter
+    , liftConverter
+    , mapDocGraph ) where
 
 import qualified Data.Text.IO as TIO
 import Data.Text
+import Data.Either
 
 import Graphdoc.Definition
-import Text.Pandoc.Definition
+import Text.Pandoc
+import Algebra.Graph.Labelled.AdjacencyMap
 
-convertToIRNode :: DocNode -> (Text -> Pandoc) -> IO DocNode
-convertToIRNode (DocNode m (File f)) converter = do
-  t <- TIO.readFile f
-  let p = converter t
-  return $ DocNode m (Doc p)
-convertToIRNode (DocNode m (Body t)) converter =
-  let p = converter t
-  in return $ DocNode m (Doc p)
-convertToIRNode n _ = return n
+makeConverter :: Writer PandocPure -> (Pandoc -> Text)
+makeConverter (TextWriter w) = textOrDefault . runPure . w def
+  where textOrDefault = fromRight "Failure"
 
-convertToContentGraph :: DocGraph -> DocGraph
-convertToContentGraph = undefined
+liftConverter :: (DocMeta -> DocMeta)
+              -> (Pandoc -> Text)
+              -> (DocNode -> DocNode)
+liftConverter metaF contentF =
+  \(DocNode m (Doc p))
+  -> DocNode (metaF m) (Body $ contentF p)
 
-convertToIRGraph :: DocGraph -> DocGraph
-convertToIRGraph = undefined
-
-
-mapOverNodes = undefined
+mapDocGraph :: (DocNode -> DocNode) -> DocGraph -> DocGraph
+mapDocGraph converter src = gmap converter src
+  
+  

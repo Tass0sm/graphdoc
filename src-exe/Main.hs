@@ -1,7 +1,9 @@
 module Main where
 
-import Control.Monad
 import Graphdoc.Analysis
+import Graphdoc.Conversion
+
+import Control.Monad
 import System.Environment
 import Algebra.Graph.Export.Dot
 import Algebra.Graph.Labelled.AdjacencyMap
@@ -18,7 +20,8 @@ main :: IO ()
 main = do
   arg <- head <$> getArgs
   graph <- analyzeHTML arg
-  let sGraph = gmap show graph
+  let newGraph = convertToTexinfo graph
+  let sGraph = gmap show newGraph
   putStrLn $ exportAsIs sGraph
 
   --putStrLn $ exportAsIs graph
