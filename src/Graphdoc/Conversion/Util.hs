@@ -17,6 +17,7 @@ makeConverter :: Writer PandocPure -> (Pandoc -> Text)
 makeConverter (TextWriter w) = textOrDefault . runPure . w def
   where textOrDefault = fromRight "Failure"
 
+-- Will switch to lenses
 liftConverter :: (DocMeta -> DocMeta)
               -> (Pandoc -> Text)
               -> (DocNode -> DocNode)

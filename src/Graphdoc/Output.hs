@@ -1,4 +1,4 @@
 module Graphdoc.Output
-  ( outputToTexinfo ) where
+  ( outputTexinfo ) where
 
-import Graphdoc.Output.Texinfo (outputToTexinfo)
+import Graphdoc.Output.Texinfo (outputTexinfo)

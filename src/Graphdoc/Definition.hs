@@ -14,6 +14,7 @@ data DocMeta = DocMeta
   { docMetaFormat :: String
   , docMetaTitle  :: String
   , docMetaPath   :: FilePath
+  , docMetaIsTop  :: Bool
   } deriving (Show)
 
 data DocSource = Body Text |

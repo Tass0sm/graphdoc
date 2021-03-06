@@ -47,6 +47,7 @@ getMetadata :: FilePath -> DocMeta
 getMetadata file = DocMeta { docMetaFormat = "HTML"
                            , docMetaTitle = takeBaseName file
                            , docMetaPath = file
+                           , docMetaIsTop = False
                            }
 
 getVertex :: FilePath -> IO DocNode

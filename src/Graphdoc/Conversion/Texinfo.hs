@@ -15,11 +15,11 @@ import Text.Pandoc.Writers
 writer :: Writer PandocPure
 writer = fromJust $ lookup "texinfo" writers
 
+-- Will switch to lenses
 convertMetadata :: DocMeta -> DocMeta
-convertMetadata m@(DocMeta _ t p) =
+convertMetadata m@(DocMeta _ _ p _) =
   m
   { docMetaFormat = "texinfo"
-  , docMetaTitle = t
   , docMetaPath = p -<.> "texi"
   }
 
