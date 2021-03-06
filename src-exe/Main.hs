@@ -2,6 +2,7 @@ module Main where
 
 import Graphdoc.Analysis
 import Graphdoc.Conversion
+import Graphdoc.Output
 
 import Control.Monad
 import System.Environment
@@ -21,8 +22,9 @@ main = do
   arg <- head <$> getArgs
   graph <- analyzeHTML arg
   let newGraph = convertToTexinfo graph
-  let sGraph = gmap show newGraph
-  putStrLn $ exportAsIs sGraph
+  outputTexinfo newGraph
+  --let sGraph = gmap show newGraph
+  --putStrLn $ exportAsIs sGraph
 
   --putStrLn $ exportAsIs graph
   --mapM_ (putStrLn . show) pairs
