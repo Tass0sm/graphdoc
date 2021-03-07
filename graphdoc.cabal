@@ -39,11 +39,12 @@ library
   -- Modules included in this library but not exported.
   other-modules:       Graphdoc.Analysis.Util
                      , Graphdoc.Analysis.HTML
+                     , Graphdoc.Analysis.HTML.Links
                      , Graphdoc.Conversion.Util
                      , Graphdoc.Conversion.Texinfo
+                     , Graphdoc.Output.Util
                      , Graphdoc.Output.Texinfo
                      , Graphdoc.Definition
-                     , Graphdoc.Analysis.HTML.Links
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:

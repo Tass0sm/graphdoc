@@ -2,6 +2,9 @@ module Graphdoc.Output.Texinfo
   ( outputTexinfo ) where
 
 import Graphdoc.Definition
+import Graphdoc.Output.Util
+
+import System.IO
 
 import Algebra.Graph.Export.Dot
 import Algebra.Graph.Labelled.AdjacencyMap
@@ -14,8 +17,6 @@ findVertexWithPath path graph =
   -- UNSAFE!!!
   in head $ filter hasThePath vertices
   where hasThePath = (path ==) . show
-
--- depth first traversal 
 
 simplifyGraph :: DocGraph -> Unlabelled.AdjacencyMap DocNode
 simplifyGraph graph =
@@ -30,12 +31,8 @@ flattenGraph graph =
       simplifiedGraph = simplifyGraph graph
   in dfs [rootNode] simplifiedGraph 
 
-outputTexinfo :: DocGraph -> IO ()
-outputTexinfo graph =
+outputTexinfo :: String -> DocGraph -> IO ()
+outputTexinfo destination graph =
   let nodeList = flattenGraph graph
-  in putStrLn $ show nodeList
-
---  let sGraph = Unlabelled.gmap show $ simplifyGraph graph
---  in putStrLn $ exportAsIs sGraph
-
--- putStrLn $ exportAsIs sGraph
+  in withFile destination WriteMode
+     (\h -> hPutDocNodes h nodeList)

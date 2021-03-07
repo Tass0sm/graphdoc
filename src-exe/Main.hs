@@ -22,7 +22,7 @@ main = do
   arg <- head <$> getArgs
   graph <- analyzeHTML arg
   let newGraph = convertToTexinfo graph
-  outputTexinfo newGraph
+  outputTexinfo "./out.texi" newGraph
   --let sGraph = gmap show newGraph
   --putStrLn $ exportAsIs sGraph
 
