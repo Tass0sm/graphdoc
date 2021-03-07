@@ -8,12 +8,8 @@ import Data.Maybe
 import Graphdoc.Definition
 import Graphdoc.Conversion.Util
 
+import Text.Pandoc
 import System.FilePath
-import Text.Pandoc.Class
-import Text.Pandoc.Writers
-
-writer :: Writer PandocPure
-writer = fromJust $ lookup "texinfo" writers
 
 -- Will switch to lenses
 convertMetadata :: DocMeta -> DocMeta
@@ -23,8 +19,11 @@ convertMetadata m@(DocMeta _ _ p _) =
   , docMetaPath = p -<.> "texi"
   }
 
+-- TODO
+convertPandoc :: Pandoc -> Pandoc
+convertPandoc = id
+
 convertToTexinfo :: DocGraph -> DocGraph
 convertToTexinfo g = 
-  let converter = makeConverter writer
-      nodeConverter = liftConverter convertMetadata converter
+  let nodeConverter = liftConverter convertMetadata convertPandoc
   in mapDocGraph nodeConverter g
