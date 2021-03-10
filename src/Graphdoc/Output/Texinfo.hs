@@ -9,6 +9,7 @@ import Graphdoc.Output.Util
 import Text.Pandoc
 import Text.Pandoc.Class
 import Text.Pandoc.Writers
+import Text.Pandoc.Builder
 
 import System.IO
 import Data.Maybe
@@ -35,11 +36,11 @@ simplifyGraph graph =
       unlabelledTopEdges = map (\(_, a, b) -> (b, a)) labelledTopEdges
   in Unlabelled.edges unlabelledTopEdges
 
-flattenGraph :: DocGraph -> [DocNode]
+flattenGraph :: DocGraph -> [(Int, DocNode)]
 flattenGraph graph =
   let rootNode = findVertexWithPath "/home/tassos/desktop/sample-doc/FrontMatter/index.texi" graph
       simplifiedGraph = simplifyGraph graph
-  in dfs [rootNode] simplifiedGraph 
+  in dfsWithDepth [rootNode] simplifiedGraph 
 
 writer :: Writer PandocPure
 writer = fromJust $ lookup "texinfo" writers
@@ -54,11 +55,21 @@ simpleConverter = makeConverter writer
 outputTexinfo :: String -> DocGraph -> IO ()
 outputTexinfo destination graph =
   let nodeList = flattenGraph graph
-      docList = map (\(DocNode _ (Doc p)) -> p) nodeList
+      getDocWithDepth = \(d, (DocNode _ (Doc p))) -> (d, p) -- Replace with lenses?
+      docWithDepthList = map getDocWithDepth nodeList
+      prependHeader = \(d, Pandoc m bs) ->
+        let documentHeader = header d $ fromList $ docTitle m
+            existingBlocks = fromList bs
+            wholeBlocks = toList $ documentHeader <> existingBlocks
+        in Pandoc m wholeBlocks
+      docList = map prependHeader docWithDepthList
       totalDoc = mconcat docList
       docText = simpleConverter totalDoc
-  in withFile destination WriteMode
-     (\h -> TIO.hPutStr h docText)
+  in do
+    putStrLn $ show nodeList
+    putStrLn $ show totalDoc
+    withFile destination WriteMode
+      (\h -> TIO.hPutStr h docText)
 
 
 

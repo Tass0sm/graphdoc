@@ -9,6 +9,7 @@ import Graphdoc.Definition
 import Graphdoc.Conversion.Util
 
 import Text.Pandoc
+import Text.Pandoc.Walk
 import System.FilePath
 
 -- Will switch to lenses
@@ -19,9 +20,11 @@ convertMetadata m@(DocMeta _ p _) =
   , docMetaPath = p -<.> "texi"
   }
 
--- TODO
 convertPandoc :: Pandoc -> Pandoc
-convertPandoc = id
+convertPandoc = walk removeHeader
+  where removeHeader :: Block -> Block
+        removeHeader (Header _ _ ils) = Para ils
+        removeHeader x = x
 
 convertToTexinfo :: DocGraph -> DocGraph
 convertToTexinfo g = 
