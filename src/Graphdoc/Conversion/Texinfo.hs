@@ -13,7 +13,7 @@ import System.FilePath
 
 -- Will switch to lenses
 convertMetadata :: DocMeta -> DocMeta
-convertMetadata m@(DocMeta _ _ p _) =
+convertMetadata m@(DocMeta _ p _) =
   m
   { docMetaFormat = "texinfo"
   , docMetaPath = p -<.> "texi"

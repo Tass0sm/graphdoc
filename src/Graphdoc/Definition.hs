@@ -12,7 +12,6 @@ import Data.Text (Text)
 -- All the information for a node in the graph (metadata and source).
 data DocMeta = DocMeta
   { docMetaFormat :: String
-  , docMetaTitle  :: String
   , docMetaPath   :: FilePath
   , docMetaIsTop  :: Bool
   } deriving (Show)
