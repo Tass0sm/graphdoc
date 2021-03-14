@@ -33,5 +33,4 @@ convertToTexinfo :: DocGraph -> DocGraph
 convertToTexinfo (docMap, docGraph) = 
   let nodeConverter = liftConverter convertPandoc
       newMap = Map.map nodeConverter docMap
-      newGraph = gmap (-<.> "texi") docGraph
   in (newMap, docGraph)

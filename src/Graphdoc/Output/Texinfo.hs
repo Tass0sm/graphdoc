@@ -33,14 +33,14 @@ findVertexWithBaseName path (_, docGraph) =
 
 simplifiedGraph :: DocGraph -> Unlabelled.AdjacencyMap FilePath
 simplifiedGraph (_, docGraph) =
-  let isTopEdge = ("TOP" == ) . (\(s, _, _) -> s)
-      labelledTopEdges = filter isTopEdge $ edgeList docGraph
-      unlabelledTopEdges = map (\(_, a, b) -> (b, a)) labelledTopEdges
-  in Unlabelled.edges unlabelledTopEdges
+  let isUpEdge = ("UP" == ) . (\(s, _, _) -> s)
+      labelledUpEdges = filter isUpEdge $ edgeList docGraph
+      unlabelledUpEdges = map (\(_, a, b) -> (b, a)) labelledUpEdges
+  in Unlabelled.edges unlabelledUpEdges
 
 flattenGraph :: DocGraph -> [(Int, FilePath)]
 flattenGraph graph =
-  let rootNode = findVertexWithBaseName "index" graph
+  let rootNode = findVertexWithBaseName "Chapter-Index" graph
       simpleGraph = simplifiedGraph graph
   in dfsWithDepth [rootNode] simpleGraph 
 
@@ -69,7 +69,3 @@ outputTexinfo destination graph@(docMap, _) =
       docText = simpleConverter totalDoc
   in withFile destination WriteMode
      (\h -> TIO.hPutStr h docText)
-
-
-
-

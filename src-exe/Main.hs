@@ -27,6 +27,8 @@ main = do
   outputTexinfo "./out.texi" newGraph
   putStrLn "Finished Output"
 
+--   putStrLn $ exportAsIs sGraph
+
 --  (subcommand:args) <- getArgs
 --  case subcommand of
 --    "analyze" -> analyzeMain args

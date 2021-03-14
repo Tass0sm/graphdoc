@@ -76,7 +76,3 @@ analyzeHTML topdir = do
 
   fileEdgeList <- getEveryFileEdge files
   return (docMap, edges $ fileEdgeList)
-
-
-
-      
