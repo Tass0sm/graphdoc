@@ -12,35 +12,37 @@ import Text.Pandoc.Writers
 import Text.Pandoc.Builder
 
 import System.IO
+import System.FilePath
 import Data.Maybe
 import Data.Either
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
+import qualified Data.Map as Map
 
 import Algebra.Graph.Export.Dot
 import Algebra.Graph.Labelled.AdjacencyMap
 import Algebra.Graph.AdjacencyMap.Algorithm
 import qualified Algebra.Graph.AdjacencyMap as Unlabelled
 
-findVertexWithPath :: String -> DocGraph -> DocNode
-findVertexWithPath path graph =
-  let vertices = vertexList graph
+findVertexWithBaseName :: String -> DocGraph -> String
+findVertexWithBaseName path (_, docGraph) =
+  let vertices = vertexList docGraph
   -- UNSAFE!!!
-  in head $ filter hasThePath vertices
-  where hasThePath = (path ==) . show
+  in head $ filter hasTheBaseName vertices
+  where hasTheBaseName = (path ==) . takeBaseName
 
-simplifyGraph :: DocGraph -> Unlabelled.AdjacencyMap DocNode
-simplifyGraph graph =
+simplifiedGraph :: DocGraph -> Unlabelled.AdjacencyMap FilePath
+simplifiedGraph (_, docGraph) =
   let isTopEdge = ("TOP" == ) . (\(s, _, _) -> s)
-      labelledTopEdges = filter isTopEdge $ edgeList graph
+      labelledTopEdges = filter isTopEdge $ edgeList docGraph
       unlabelledTopEdges = map (\(_, a, b) -> (b, a)) labelledTopEdges
   in Unlabelled.edges unlabelledTopEdges
 
-flattenGraph :: DocGraph -> [(Int, DocNode)]
+flattenGraph :: DocGraph -> [(Int, FilePath)]
 flattenGraph graph =
-  let rootNode = findVertexWithPath "/home/tassos/desktop/sample-doc/FrontMatter/index.texi" graph
-      simplifiedGraph = simplifyGraph graph
-  in dfsWithDepth [rootNode] simplifiedGraph 
+  let rootNode = findVertexWithBaseName "index" graph
+      simpleGraph = simplifiedGraph graph
+  in dfsWithDepth [rootNode] simpleGraph 
 
 writer :: Writer PandocPure
 writer = fromJust $ lookup "texinfo" writers
@@ -53,11 +55,11 @@ simpleConverter :: Pandoc -> T.Text
 simpleConverter = makeConverter writer
 
 outputTexinfo :: String -> DocGraph -> IO ()
-outputTexinfo destination graph =
+outputTexinfo destination graph@(docMap, _) =
   let nodeList = flattenGraph graph
-      getDocWithDepth = \(d, (DocNode _ (Doc p))) -> (d, p) -- Replace with lenses?
+      getDocWithDepth = \(d, f) -> (d, fromJust $ Map.lookup f docMap) -- Replace with lenses?
       docWithDepthList = map getDocWithDepth nodeList
-      prependHeader = \(d, Pandoc m bs) ->
+      prependHeader = \(d, (Doc (Pandoc m bs))) ->
         let documentHeader = header d $ fromList $ docTitle m
             existingBlocks = fromList bs
             wholeBlocks = toList $ documentHeader <> existingBlocks
@@ -65,11 +67,8 @@ outputTexinfo destination graph =
       docList = map prependHeader docWithDepthList
       totalDoc = mconcat docList
       docText = simpleConverter totalDoc
-  in do
-    putStrLn $ show nodeList
-    putStrLn $ show totalDoc
-    withFile destination WriteMode
-      (\h -> TIO.hPutStr h docText)
+  in withFile destination WriteMode
+     (\h -> TIO.hPutStr h docText)
 
 
 

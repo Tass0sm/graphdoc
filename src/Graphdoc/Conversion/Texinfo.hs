@@ -4,6 +4,7 @@ module Graphdoc.Conversion.Texinfo
   ( convertToTexinfo ) where
 
 import Data.Maybe
+import qualified Data.Map as Map
 
 import Graphdoc.Definition
 import Graphdoc.Conversion.Util
@@ -11,6 +12,8 @@ import Graphdoc.Conversion.Util
 import Text.Pandoc
 import Text.Pandoc.Walk
 import System.FilePath
+
+import Algebra.Graph.Labelled.AdjacencyMap
 
 -- Will switch to lenses
 convertMetadata :: DocMeta -> DocMeta
@@ -27,6 +30,8 @@ convertPandoc = walk removeHeader
         removeHeader x = x
 
 convertToTexinfo :: DocGraph -> DocGraph
-convertToTexinfo g = 
-  let nodeConverter = liftConverter convertMetadata convertPandoc
-  in mapDocGraph nodeConverter g
+convertToTexinfo (docMap, docGraph) = 
+  let nodeConverter = liftConverter convertPandoc
+      newMap = Map.map nodeConverter docMap
+      newGraph = gmap (-<.> "texi") docGraph
+  in (newMap, docGraph)

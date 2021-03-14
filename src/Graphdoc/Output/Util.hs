@@ -20,12 +20,3 @@ flattenWithDepth t = squish 1 t []
 
 dfsWithDepth :: Ord a => [a] -> AdjacencyMap a -> [(Int, a)]
 dfsWithDepth vs = dfsForestFrom vs >=> flattenWithDepth
-
--- docNodeContent :: DocNode -> Text
--- docNodeContent (DocNode _ (Body t)) = t
--- docNodeContent _ = ""
--- 
--- hPutDocNodes :: Handle -> [DocNode] -> IO ()
--- hPutDocNodes handle nodeList =
---   mapM_ (TIO.hPutStr handle . docNodeContent) nodeList
--- 

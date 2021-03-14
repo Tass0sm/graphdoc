@@ -21,16 +21,11 @@ main :: IO ()
 main = do
   arg <- head <$> getArgs
   graph <- analyzeHTML arg
+  putStrLn "Finished Analysis"
   let newGraph = convertToTexinfo graph
+  putStrLn "Finished Conversion"
   outputTexinfo "./out.texi" newGraph
-  --let sGraph = gmap show newGraph
-  --putStrLn $ exportAsIs sGraph
-
-  --putStrLn $ exportAsIs graph
-  --mapM_ (putStrLn . show) pairs
-
---  files <- listDirectoryRecursively "./src"
---  mapM_ putStrLn files
+  putStrLn "Finished Output"
 
 --  (subcommand:args) <- getArgs
 --  case subcommand of

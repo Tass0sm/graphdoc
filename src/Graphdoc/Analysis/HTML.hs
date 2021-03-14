@@ -5,7 +5,9 @@ import Graphdoc.Definition
 import Graphdoc.Analysis.Util
 import Graphdoc.Analysis.HTML.Links
 
+import System.IO
 import qualified Data.Text.IO as TIO
+import qualified Data.Map as Map
 
 import Text.Pandoc
 import Algebra.Graph.Labelled.AdjacencyMap
@@ -35,9 +37,8 @@ getFileEdges file = do
             newRef <- resolveLink file ref
             return (rel, file, newRef)
 
-getEveryFileEdge :: FilePath -> IO [(String, FilePath, FilePath)]
-getEveryFileEdge topdir = do
-  files <- getSourceFiles sourceP topdir
+getEveryFileEdge :: [FilePath] -> IO [(String, FilePath, FilePath)]
+getEveryFileEdge files = do
   concat <$> mapM getFileEdges files
 
 ---------------------------------------------------------------------------
@@ -50,11 +51,9 @@ getMetadata file = DocMeta { docMetaFormat = "HTML"
                            }
 
 getVertex :: FilePath -> IO DocNode
-getVertex file = do
-  text <- TIO.readFile file
-  let result = runPure $ readHtml def text
-  doc <- handleError result
-  return $ DocNode (getMetadata file) (Doc doc)
+getVertex file = withFile file ReadMode
+  (\_ -> do
+      return $ getMetadata file)
 
 toDocEdge :: (String, FilePath, FilePath) -> IO (String, DocNode, DocNode)
 toDocEdge (s, f1, f2) = do
@@ -62,9 +61,22 @@ toDocEdge (s, f1, f2) = do
   v2 <- getVertex f2
   return (s, v1, v2)
 
+getTableEntry :: FilePath -> IO (FilePath, DocSource)
+getTableEntry file = withFile file ReadMode
+  (\h -> do
+      text <- TIO.hGetContents h
+      let result = runPure $! readHtml def text
+      doc <- handleError result
+      return (file, Doc doc))
+
 analyzeHTML :: FilePath -> IO DocGraph
 analyzeHTML topdir = do
-  fileEdgeList <- getEveryFileEdge topdir
-  docEdgeList <- mapM toDocEdge fileEdgeList
-  return $ edges docEdgeList
+  files <- getSourceFiles sourceP topdir
+  docMap <- Map.fromList <$> mapM getTableEntry files
 
+  fileEdgeList <- getEveryFileEdge files
+  return (docMap, edges $ fileEdgeList)
+
+
+
+      

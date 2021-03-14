@@ -8,6 +8,7 @@ module Graphdoc.Definition
 import Algebra.Graph.Labelled.AdjacencyMap
 import Text.Pandoc.Definition
 import Data.Text (Text)
+import Data.Map
 
 -- All the information for a node in the graph (metadata and source).
 data DocMeta = DocMeta
@@ -16,25 +17,21 @@ data DocMeta = DocMeta
   , docMetaIsTop  :: Bool
   } deriving (Show)
 
-data DocSource = Body Text |
-                 Doc Pandoc
+instance Eq DocMeta where
+  (==) (DocMeta _ p1 _) (DocMeta _ p2 _) =
+    p1 == p2
 
--- The node type
-data DocNode = DocNode DocMeta DocSource
+instance Ord DocMeta where
+  compare (DocMeta _ p1 _) (DocMeta _ p2 _) =
+    compare p1 p2
 
-instance Eq DocNode where
-  (==) (DocNode m1 _) (DocNode m2 _) =
-    (docMetaPath m1) == (docMetaPath m2)
-
-instance Ord DocNode where
-  compare (DocNode m1 _) (DocNode m2 _) =
-    compare (docMetaPath m1) (docMetaPath m2)
-
-instance Show DocNode where
-  show (DocNode m1 _) = docMetaPath m1
+type DocNode = DocMeta
 
 -- A standalone edge, for building graphs
 type DocEdge = (String, DocNode, DocNode)
 
+data DocSource = Body Text |
+                 Doc Pandoc
+
 -- A labelled graph of nodes, which captures a body of documentation.
-type DocGraph = AdjacencyMap String DocNode
+type DocGraph = (Map FilePath DocSource, AdjacencyMap String FilePath)
