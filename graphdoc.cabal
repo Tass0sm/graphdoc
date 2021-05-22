@@ -24,42 +24,32 @@ category:            Development
 
 build-type:          Simple
 
+
 -- Extra files to be distributed with the package, such as examples or a
 -- README.
 extra-source-files:  CHANGELOG.md
                      README.org
 
 library
-  -- Modules exported by the library.
   exposed-modules:     Graphdoc
                      , Graphdoc.Analysis
                      , Graphdoc.Conversion
                      , Graphdoc.Output
 
-  -- Modules included in this library but not exported.
-  other-modules:       Graphdoc.Analysis.Util
-                     , Graphdoc.Analysis.HTML
-                     , Graphdoc.Analysis.HTML.Links
-                     , Graphdoc.Conversion.Util
+  other-modules:       Graphdoc.Analysis.HTML
+                     , Graphdoc.Analysis.Book
                      , Graphdoc.Conversion.Texinfo
-                     , Graphdoc.Output.Util
                      , Graphdoc.Output.Texinfo
                      , Graphdoc.Definition
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
 
-  -- Other library packages from which modules are imported.
   build-depends:       base >=4.14 && <4.15
                      , text >=1.2 && <1.3
                      , containers >=0.6 && <0.7
-                     , directory
-                     , algebraic-graphs
                      , pandoc-types
                      , pandoc
-                     , filepath
-                     , tagsoup
-                     , path
 
   -- Directories containing source files.
   hs-source-dirs:      src
@@ -69,23 +59,17 @@ library
 
 
 executable graphdoc
-  -- .hs or .lhs file containing the Main module.
   main-is:             Main.hs
-
-  -- Modules included in this executable, other than Main.
-  other-modules:       PandocOptionsUtil
+  other-modules:
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
 
-  -- Other library packages from which modules are imported.
-  build-depends:       graphdoc
-                     , pandoc
-                     , filepath
-                     , base >=4.14 && <4.15
+  build-depends:       base >=4.14 && <4.15
                      , text >=1.2 && <1.3
                      , containers >=0.6 && <0.7
-                     , algebraic-graphs
+                     , pandoc
+                     , graphdoc
 
   hs-source-dirs:      src-exe
   default-language:    Haskell2010

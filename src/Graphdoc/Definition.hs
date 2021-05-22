@@ -3,35 +3,38 @@ module Graphdoc.Definition
   , DocSource (..)
   , DocNode (..)
   , DocEdge
-  , DocMeta (..) ) where
+  , DocMeta (..)
+  , Reader
+  , Converter
+  , Writer) where
 
-import Algebra.Graph.Labelled.AdjacencyMap
 import Text.Pandoc.Definition
 import Data.Text (Text)
-import Data.Map
+import Data.Tree (Tree)
 
--- All the information for a node in the graph (metadata and source).
 data DocMeta = DocMeta
-  { docMetaFormat :: String
+  { docMetaId     :: Integer
+  , docMetaFormat :: String
   , docMetaPath   :: FilePath
   , docMetaIsTop  :: Bool
   } deriving (Show)
 
-instance Eq DocMeta where
-  (==) (DocMeta _ p1 _) (DocMeta _ p2 _) =
-    p1 == p2
+data DocSource = Body Text | Doc Pandoc
 
-instance Ord DocMeta where
-  compare (DocMeta _ p1 _) (DocMeta _ p2 _) =
-    compare p1 p2
+data DocEdge = DocEdge
+  { docEdgeLabel  :: String
+  , docEdgeTarget :: Integer
+  }
 
-type DocNode = DocMeta
+data DocNode = DocNode
+  { docNodeInfo      :: DocMeta
+  , docNodeSource    :: DocSource
+  , docNodeOutEdges  :: [DocEdge]
+  }
 
--- A standalone edge, for building graphs
-type DocEdge = (String, DocNode, DocNode)
+-- A tree of nodes, which also have associated edges.
+type DocGraph = Tree DocNode
 
-data DocSource = Body Text |
-                 Doc Pandoc
-
--- A labelled graph of nodes, which captures a body of documentation.
-type DocGraph = (Map FilePath DocSource, AdjacencyMap String FilePath)
+type Reader = FilePath -> IO DocGraph
+type Converter = DocGraph -> DocGraph
+type Writer = DocGraph -> IO ()
