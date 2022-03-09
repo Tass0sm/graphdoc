@@ -1,14 +1,13 @@
-module Graphdoc.Definition
-  ( DocGraph
-  , DocSource (..)
-  , DocNode (..)
-  , DocEdge
-  , DocMeta (..)
-  , Reader
-  , Converter
-  , Writer) where
+module Text.Graphdoc.Definition
+  ( Graphdoc(..) ) where
 
 import Text.Pandoc.Definition
+import Data.Tree
+
+data Graphdoc = Graphdoc Meta (Tree Pandoc)
+              deriving (Eq, Ord, Read, Show, Typeable, Data, Generic)
+
+
 import Data.Text (Text)
 import Data.Tree (Tree)
 
