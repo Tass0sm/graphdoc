@@ -1,5 +1,8 @@
-(use-modules (gnu packages llvm)
+(use-modules (tassos-guix develop)
+             (gnu packages llvm)
+             (gnu packages guile)
              (gnu packages haskell-xyz)
+             (gnu packages haskell-apps)
              (gnu packages crates-io)
              (gnu packages crates-graphics)
              (guix gexp)
@@ -22,8 +25,6 @@
                 #:recursive? #t
                 #:select? (git-predicate %source-dir)))
    (build-system haskell-build-system)
-;;    (native-inputs
-;;     (list cabal-install))
    (inputs
     (list ghc-pandoc
           ghc-pandoc-types))
@@ -32,6 +33,6 @@
    (description "")
    (license license:gpl3+)))
 
-(package
- (inherit ghc-graphdoc)
- (name "graphdoc"))
+(de->manifest
+ (development-environment
+  (package ghc-graphdoc)))
