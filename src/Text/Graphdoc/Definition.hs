@@ -1,39 +1,28 @@
 module Text.Graphdoc.Definition
-  ( Graphdoc(..) ) where
+  ( GraphSource
+  , Graphdoc(..)
+  , GraphdocNodeType(..)
+  , GraphdocNode(..) ) where
 
-import Text.Pandoc.Definition
 import Data.Tree
-
-data Graphdoc = Graphdoc Meta (Tree Pandoc)
-              deriving (Eq, Ord, Read, Show, Typeable, Data, Generic)
-
-
 import Data.Text (Text)
-import Data.Tree (Tree)
+import System.FilePath
+import System.Directory.Tree
+import Text.Pandoc.Definition as P
 
-data DocMeta = DocMeta
-  { docMetaId     :: Integer
-  , docMetaFormat :: String
-  , docMetaPath   :: FilePath
-  , docMetaIsTop  :: Bool
-  } deriving (Show)
+type GraphSource = AnchoredDirTree Text
 
-data DocSource = Body Text | Doc Pandoc
+data Graphdoc = Graphdoc P.Meta (Tree GraphdocNode)
+                deriving (Eq, Read, Show)
 
-data DocEdge = DocEdge
-  { docEdgeLabel  :: String
-  , docEdgeTarget :: Integer
-  }
+data GraphdocNodeType = Title Text
+                      | PartTitle Text
+                      | Chapter Int Text
+                      | Separator
+                      deriving (Eq, Read, Show)
 
-data DocNode = DocNode
-  { docNodeInfo      :: DocMeta
-  , docNodeSource    :: DocSource
-  , docNodeOutEdges  :: [DocEdge]
-  }
-
--- A tree of nodes, which also have associated edges.
-type DocGraph = Tree DocNode
-
-type Reader = FilePath -> IO DocGraph
-type Converter = DocGraph -> DocGraph
-type Writer = DocGraph -> IO ()
+data GraphdocNode = GraphdocNode
+  { nodeType :: GraphdocNodeType
+  , nodeContent :: P.Pandoc
+  , nodeURL :: Text
+  } deriving (Eq, Read, Show)

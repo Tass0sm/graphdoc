@@ -31,26 +31,29 @@ extra-source-files:  CHANGELOG.md
                      README.org
 
 library
-  exposed-modules:     Graphdoc
-                     , Graphdoc.Analysis
-                     , Graphdoc.Conversion
-                     , Graphdoc.Output
-                     , Graphdoc.Parsing
+  exposed-modules:     Text.Graphdoc
+                     , Text.Graphdoc.Readers
+                     , Text.Graphdoc.Writers
 
-  other-modules:       Graphdoc.Analysis.HTML
-                     , Graphdoc.Analysis.Book
-                     , Graphdoc.Conversion.Texinfo
-                     , Graphdoc.Output.Texinfo
-                     , Graphdoc.Parsing.Blocks
-                     , Graphdoc.Parsing.Inlines
-                     , Graphdoc.Parsing.Util
-                     , Graphdoc.Definition
+  other-modules:       Text.Graphdoc.Definition
+                     , Text.Graphdoc.Class
+                     , Text.Graphdoc.Class.GraphdocIO
+                     , Text.Graphdoc.Class.GraphdocMonad
+                     , Text.Graphdoc.Readers.Book
+                     , Text.Graphdoc.Writers.Texinfo
+                     , Text.Graphdoc.Parsing
+                     , Text.Graphdoc.Parsing.Blocks
+                     , Text.Graphdoc.Parsing.Inlines
+                     , Text.Graphdoc.Parsing.Shared
+                     , Text.Graphdoc.Utils
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
 
   build-depends:       base
                      , text
+                     , filepath
+                     , directory-tree
                      , containers
                      , pandoc-types
                      , pandoc
@@ -73,9 +76,10 @@ executable graphdoc
 
   build-depends:       base
                      , text
+                     , directory-tree
                      , containers
-                     , pandoc
                      , graphdoc
+                     , pandoc
 
   hs-source-dirs:      src-exe
   default-language:    Haskell2010
