@@ -1,7 +1,9 @@
-module Graphdoc.Parsing.Inlines
-  ( anyInline ) where
+module Text.Graphdoc.Parsing.Inlines
+  ( softbreak
+  , inline
+  , anyInline ) where
 
-import Graphdoc.Parsing.Util
+import Text.Graphdoc.Parsing.Shared
 import Text.Pandoc.Definition (Inline (..))
 
 import Control.Monad.Identity
@@ -11,6 +13,7 @@ import Text.Parsec.Pos
 import Text.Parsec.Prim
 import Text.Parsec.Combinator
 
+softbreak = inline "SoftBreak"
 inline t = satisfy $ hasType t
 anyInline = satisfy (const True)
 

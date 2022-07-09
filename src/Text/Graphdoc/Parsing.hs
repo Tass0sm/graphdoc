@@ -1,6 +1,8 @@
-module Graphdoc.Parsing
-  ( module Graphdoc.Parsing.Blocks
-  , module Graphdoc.Parsing.Inlines ) where
+module Text.Graphdoc.Parsing
+  ( module Text.Graphdoc.Parsing.Blocks
+  , module Text.Graphdoc.Parsing.Inlines
+  , module Text.Graphdoc.Parsing.Shared ) where
 
-import Graphdoc.Parsing.Blocks
-import Graphdoc.Parsing.Inlines
+import Text.Graphdoc.Parsing.Blocks
+import Text.Graphdoc.Parsing.Inlines
+import Text.Graphdoc.Parsing.Shared

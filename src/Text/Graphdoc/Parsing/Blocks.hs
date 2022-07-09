@@ -1,12 +1,15 @@
-module Graphdoc.Parsing.Blocks
-  ( bulletList
+module Text.Graphdoc.Parsing.Blocks
+  ( parserTraverse
+  , liftInlineParser
+  , inlineBlock
+  , bulletList
   , header
   , nonBlock
   , block
   , anyBlock ) where
 
-import Graphdoc.Parsing.Util
-import Text.Pandoc.Definition (Block (..))
+import Text.Graphdoc.Parsing.Shared
+import Text.Pandoc.Definition
 
 import Control.Monad.Identity
 
@@ -14,34 +17,62 @@ import Data.List
 import Data.Tree
 
 import Control.Arrow
+import Control.Monad.Trans
 
 import Text.Parsec hiding ( satisfy )
 import Text.Parsec.Pos
 import Text.Parsec.Prim
 import Text.Parsec.Combinator
 
--- Parsing using Pandoc Blocks as Tokens
+parserTraverse :: (Traversable t) => t [Block] -> BlockParser a -> BlockParser (t a)
+parserTraverse t nParser = do
+  case traverse (parse nParser "") t of
+    Right x -> return x
+    Left e -> undefined
 
-bulletList :: Parsec [Block] () (Tree [Block])
+-- Inlines
+
+liftInlineParser :: InlineParser a -> BlockParser a
+liftInlineParser p = do
+  ils <- inlineBlock
+  case parse p "Inner Inlines" ils of
+    Right x -> return x
+    Left e -> undefined
+
+inlineBlock = do
+  b <- choice $ fmap block ["Plain", "Para", "LineBlock", "Header"]
+  return $ case b of
+             (Plain ils) -> ils
+             (Para ils) -> ils
+             (LineBlock ilss) -> concat ilss
+             (Header _ _ ils) -> ils
+             otherwise -> error "Unreachable"
+
+-- Complex
+
+bulletList :: BlockParser (Forest [Block])
 bulletList = do
   (BulletList s) <- block "BulletList"
   return $ reformBulletList s
 
-reformBulletList :: [[Block]] -> Tree [Block]
+reformBulletList :: [[Block]] -> Forest [Block]
 reformBulletList items =
   let getContentsAndSublists item = second (concatMap (\(BulletList s) -> s)) $
                                     partition (not . (hasType "BulletList")) item
-      children = unfoldForest getContentsAndSublists items
-  in Node [] children
+  in unfoldForest getContentsAndSublists items
+
+-- Basic
 
 header i = satisfy isHeader
   where isHeader (Header l _ _) = i == l
 
-nonBlock t = satisfy $ not . hasType t
 block t = satisfy $ hasType t
+
+nonBlock t = satisfy $ not . hasType t
+
 anyBlock = satisfy (const True)
 
-satisfy :: (Block -> Bool) -> ParsecT [Block] () Identity Block
+satisfy :: (Block -> Bool) -> BlockParser Block
 satisfy f = tokenPrim showBlock nextPos testBlock
   where showBlock = show
         nextPos pos b bs = incSourceColumn pos 1
