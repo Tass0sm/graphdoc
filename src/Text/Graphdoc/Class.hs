@@ -1,6 +1,6 @@
-module Graphdoc.Class
-  ( module Graphdoc.Class.GraphdocMonad
-  , module Graphdoc.Class.GraphdocIO
-  ) where
+module Text.Graphdoc.Class
+   ( module Text.Graphdoc.Class.GraphdocMonad
+   , module Text.Graphdoc.Class.GraphdocIO ) where
 
-import Graphdoc.Class.GraphdocMonad
+import Text.Graphdoc.Class.GraphdocMonad
+import Text.Graphdoc.Class.GraphdocIO
