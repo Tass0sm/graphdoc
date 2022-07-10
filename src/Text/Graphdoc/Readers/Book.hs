@@ -78,7 +78,7 @@ chapterForest :: BlockParser (Forest GraphdocNode)
 chapterForest = do
   forest <- bulletList
   let traversableForest = Compose { getCompose = forest }
-  getCompose <$> parserTraverse traversableForest blockChapter
+  getCompose <$> traverseParser traversableForest blockChapter
 
 unnumberedChapters :: BlockParser [GraphdocNode]
 unnumberedChapters = liftInlineParser $ many $ do

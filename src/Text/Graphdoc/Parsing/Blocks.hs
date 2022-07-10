@@ -1,6 +1,5 @@
 module Text.Graphdoc.Parsing.Blocks
-  ( parserTraverse
-  , liftInlineParser
+  ( liftInlineParser
   , inlineBlock
   , bulletList
   , header
@@ -24,20 +23,12 @@ import Text.Parsec.Pos
 import Text.Parsec.Prim
 import Text.Parsec.Combinator
 
-parserTraverse :: (Traversable t) => t [Block] -> BlockParser a -> BlockParser (t a)
-parserTraverse t nParser = do
-  case traverse (parse nParser "") t of
-    Right x -> return x
-    Left e -> undefined
-
 -- Inlines
 
 liftInlineParser :: InlineParser a -> BlockParser a
 liftInlineParser p = do
   ils <- inlineBlock
-  case parse p "Inner Inlines" ils of
-    Right x -> return x
-    Left e -> undefined
+  liftParser "Inner Inlines" p ils
 
 inlineBlock = do
   b <- choice $ fmap block ["Plain", "Para", "LineBlock", "Header"]
