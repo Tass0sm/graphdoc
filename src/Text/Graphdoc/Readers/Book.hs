@@ -43,15 +43,14 @@ parseSummaryText txt =
 
 summaryFile :: BlockParser (Tree GraphdocNode)
 summaryFile = do
-  t <- optionMaybe title
-  let top = fromMaybe (GraphdocNode (Title mempty) mempty mempty) t
+  t <- option (GraphdocNode (Title mempty) mempty mempty) title
 
   prefixChapters <- option [] unnumberedChapters
   parts <- many part
   suffixChapters <- option [] unnumberedChapters
 
   let cs = ((flip Node []) <$> prefixChapters) ++ parts ++ ((flip Node []) <$> suffixChapters)
-  return $ Node top cs
+  return $ Node t cs
 
 title :: BlockParser GraphdocNode
 title = do
