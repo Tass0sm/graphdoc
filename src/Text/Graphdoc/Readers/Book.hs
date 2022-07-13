@@ -22,7 +22,7 @@ import Data.Tree
 readBook :: GraphSource -> PandocIO Graphdoc
 readBook tree = do
   let maybeStructure = do
-        outline <- findInSource tree "SUMMARY.md"
+        outline <- findByPath "./src/SUMMARY.md" tree
         return $ parseSummaryText outline
   let emptyStructure = fromMaybe (Node (GraphdocNode (Title mempty) mempty mempty) []) maybeStructure
   fullStructure <- traverse fillContent emptyStructure
