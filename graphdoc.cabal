@@ -32,11 +32,11 @@ extra-source-files:  CHANGELOG.md
 
 library
   exposed-modules:     Text.Graphdoc
+                     , Text.Graphdoc.Class
                      , Text.Graphdoc.Readers
                      , Text.Graphdoc.Writers
 
   other-modules:       Text.Graphdoc.Definition
-                     , Text.Graphdoc.Class
                      , Text.Graphdoc.Class.GraphdocIO
                      , Text.Graphdoc.Class.GraphdocMonad
                      , Text.Graphdoc.Readers.Book
@@ -45,6 +45,7 @@ library
                      , Text.Graphdoc.Parsing.Blocks
                      , Text.Graphdoc.Parsing.Inlines
                      , Text.Graphdoc.Parsing.Shared
+                     , Text.Graphdoc.Error
                      , Text.Graphdoc.Utils
 
   -- LANGUAGE extensions used by modules in this package.

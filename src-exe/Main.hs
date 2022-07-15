@@ -16,7 +16,7 @@ main :: IO ()
 main = do
   bookSource <- readDirectoryWith TIO.readFile rustBookPath
 
-  texinfo <- runIO $ do
+  texinfo <- runGraphdocIO $ do
     book <- readBook bookSource
     writeWholeTexinfo book
 

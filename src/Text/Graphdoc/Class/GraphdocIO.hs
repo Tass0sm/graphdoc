@@ -1,37 +1,52 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 module Text.Graphdoc.Class.GraphdocIO
   ( GraphdocIO(..)
-  -- , runGraphdocIO
+  , runGraphdocIO
+  , liftPandocIO
+  , liftPandocEither
+  , liftParserEither
   ) where
 
 import Text.Graphdoc.Class.GraphdocMonad
 import Text.Graphdoc.Definition
+import Text.Graphdoc.Error
 import Text.Pandoc.Class as P
 import Text.Pandoc.Error
+import Text.Parsec.Error
 import Control.Monad.Reader
-
--- | Evaluate a 'GraphdocIO' operation.
--- runGraphdocIO :: Graphdoc -> GraphdocIO a -> IO (Either PandocError a)
--- runGraphdocIO g ma = P.runIO $ flip runReaderT g ma
+import Control.Monad.Except
 
 newtype GraphdocIO a = GraphdocIO {
-  unGraphdocIO :: ReaderT Graphdoc P.PandocIO a
-  }
+  unGraphdocIO :: ExceptT GraphdocError P.PandocIO a
+  } deriving ( Functor
+             , Applicative
+             , Monad
+             , MonadError GraphdocError)
 
-instance Functor GraphdocIO where
-  fmap f = GraphdocIO . fmap f . unGraphdocIO
+-- | Evaluate a 'GraphdocIO' operation.
+runGraphdocIO :: GraphdocIO a -> IO (Either GraphdocError a)
+runGraphdocIO g = do
+  r <- P.runIO $ runExceptT $ unGraphdocIO g
+  return $ case r of
+    Left e -> Left $ GraphdocPandocError e
+    Right x -> x
 
-instance Applicative GraphdocIO where
-  pure = GraphdocIO . pure
-  f <*> x = GraphdocIO $ (unGraphdocIO f) <*> (unGraphdocIO x)
+liftPandocEither :: Either PandocError a -> GraphdocIO a
+liftPandocEither = either (throwError . GraphdocPandocError) return
 
-instance Monad GraphdocIO where
-  x >>= f = GraphdocIO $ (unGraphdocIO x) >>= (unGraphdocIO . f)
+liftParserEither :: Either ParseError a -> GraphdocIO a
+liftParserEither = either (throwError . GraphdocParserError) return
 
-instance MonadReader Graphdoc GraphdocIO where
-  ask = GraphdocIO ask
-  local f = GraphdocIO . local f . unGraphdocIO
+liftPandocIO :: PandocIO a -> GraphdocIO a
+liftPandocIO p =
+  GraphdocIO $ lift $ p
 
-instance GraphdocMonad GraphdocIO where
-  getGraphdoc = ask
+
+-- instance MonadReader Graphdoc GraphdocIO where
+--   ask = GraphdocIO ask
+--   local f = GraphdocIO . local f . unGraphdocIO
+
+-- instance GraphdocMonad GraphdocIO where
+--   getGraphdoc = ask

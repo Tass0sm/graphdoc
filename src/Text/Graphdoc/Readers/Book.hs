@@ -19,13 +19,12 @@ import Data.Text as T
 import Data.Text.IO as TIO
 import Data.Tree
 
-readBook :: GraphSource -> PandocIO Graphdoc
+readBook :: GraphSource -> GraphdocIO Graphdoc
 readBook tree = do
-  let maybeStructure = do
-        outline <- findByPath "./src/SUMMARY.md" tree
-        return $ parseSummaryText outline
-  let emptyStructure = fromMaybe (Node (GraphdocNode (Title mempty) mempty mempty) []) maybeStructure
-  fullStructure <- traverse fillContent emptyStructure
+  let summaryFileText = fromMaybe (T.pack "") $ findByPath "./src/SUMMARY.md" tree
+  doc <- liftPandocIO $ readMarkdown def summaryFileText
+  emptyStructure <- parseSummaryDoc doc
+  fullStructure <- liftPandocIO $ traverse fillContent emptyStructure
   return $ Graphdoc mempty fullStructure
 
 fillContent :: GraphdocNode -> PandocIO GraphdocNode
@@ -36,10 +35,8 @@ fillContent node = if T.null $ nodeURL node
   content <- readMarkdown def text
   return $ node { nodeContent = content }
 
-parseSummaryText :: T.Text -> Tree GraphdocNode
-parseSummaryText txt =
-  let (Pandoc _ blocks) = fromRight mempty $ runPure $ readMarkdown def txt
-  in fromRight (Node (GraphdocNode (Title mempty) mempty mempty) []) $ parse summaryFile "SUMMARY.md" blocks
+parseSummaryDoc :: Pandoc -> GraphdocIO (Tree GraphdocNode)
+parseSummaryDoc (Pandoc _ blocks) = liftParserEither $ parse summaryFile "SUMMARY.md" blocks
 
 summaryFile :: BlockParser (Tree GraphdocNode)
 summaryFile = do
