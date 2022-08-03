@@ -23,6 +23,7 @@ newtype GraphdocIO a = GraphdocIO {
   } deriving ( Functor
              , Applicative
              , Monad
+             , MonadIO
              , MonadError GraphdocError)
 
 -- | Evaluate a 'GraphdocIO' operation.

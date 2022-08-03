@@ -24,13 +24,13 @@ readBook tree = do
   let summaryFileText = fromMaybe (T.pack "") $ findByPath "./src/SUMMARY.md" tree
   doc <- liftPandocIO $ readMarkdown def summaryFileText
   emptyStructure <- parseSummaryDoc doc
-  fullStructure <- liftPandocIO $ traverse fillContent emptyStructure
+  fullStructure <- traverse fillContent emptyStructure
   return $ Graphdoc mempty fullStructure
 
-fillContent :: GraphdocNode -> PandocIO GraphdocNode
+fillContent :: GraphdocNode -> GraphdocIO GraphdocNode
 fillContent node = if T.null $ nodeURL node
   then return node
-  else do
+  else liftPandocIO $ do
   text <- liftIO $ TIO.readFile $ T.unpack $ nodeURL node
   content <- readMarkdown def text
   return $ node { nodeContent = content }

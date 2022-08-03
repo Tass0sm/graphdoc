@@ -12,13 +12,16 @@ import Text.Pandoc (runIO)
 rustBookPath :: String
 rustBookPath = "/home/tassos/desktop/rust-book/"
 
+clhsPath :: String
+clhsPath = "/home/tassos/desktop/clhs/HyperSpec/"
+
 main :: IO ()
 main = do
-  bookSource <- readDirectoryWith TIO.readFile rustBookPath
+  clhsSource <- readDirectoryWith TIO.readFile clhsPath
 
   texinfo <- runGraphdocIO $ do
-    book <- readBook bookSource
-    writeWholeTexinfo book
+    clhs <- readHTML clhsSource
+    writeWholeTexinfo clhs
 
   let (File _ t) = dirTree $ fromRight undefined $ texinfo
   TIO.putStrLn t

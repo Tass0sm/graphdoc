@@ -39,7 +39,10 @@ library
   other-modules:       Text.Graphdoc.Definition
                      , Text.Graphdoc.Class.GraphdocIO
                      , Text.Graphdoc.Class.GraphdocMonad
+                     , Text.Graphdoc.Graph.Definition
+                     , Text.Graphdoc.Graph.Utils
                      , Text.Graphdoc.Readers.Book
+                     , Text.Graphdoc.Readers.HTML
                      , Text.Graphdoc.Writers.Texinfo
                      , Text.Graphdoc.Parsing
                      , Text.Graphdoc.Parsing.Blocks
