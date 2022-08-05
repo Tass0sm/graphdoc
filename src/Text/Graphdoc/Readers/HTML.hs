@@ -22,7 +22,8 @@ readHTML s = do
 getSkeleton :: Reader DocEnv (Tree T.Text)
 getSkeleton = do
   t <- getTree
-  traverse getContent t
+  -- traverse idToContent t
+  undefined
 
 getTree :: Reader DocEnv DocTree
 getTree = do
@@ -31,8 +32,20 @@ getTree = do
 
 getGraph :: Reader DocEnv DocGraph
 getGraph = do
-  files <- M.keys <$> ask
-  fromAdjacencies <$> concat <$> traverse getAdjacencies files
+  files <- undefined
+  M.fromList <$> traverse adjacencies files
 
-getAdjacencies :: NodeID -> Reader DocEnv [(Edge, NodeID)]
-getAdjacencies = undefined
+adjacencies :: NodeID -> Reader DocEnv (NodeID, [(Edge, NodeID)])
+adjacencies n = do
+  -- text <- idToContent n
+  -- filter (T.isPrefixOf "<LINK") $ lines text
+  undefined
+
+links :: NodeID -> Reader DocEnv [(Edge, NodeID)]
+links n = do
+  -- text <- idToContent n
+  -- filter (T.isPrefixOf "<LINK") $ lines text
+  undefined
+
+linkLines :: T.Text -> [T.Text]
+linkLines t = Prelude.filter (T.isPrefixOf (T.pack "<LINK")) $ T.lines t

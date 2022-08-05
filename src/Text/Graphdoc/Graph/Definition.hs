@@ -15,6 +15,8 @@ type NodeContent = Text
 data Edge = Up | Fwd | Prev
 type DocGraph = Map NodeID [(Edge, NodeID)]
 type DocTree = Tree NodeID
-type DocEnv = Map NodeID NodeContent
+type DocEnv = ( Map FilePath NodeID
+              , Map NodeID FilePath
+              , Map NodeID NodeContent )
 
 -- type a = Reader DocEnv a
