@@ -31,13 +31,13 @@ orderedDFS :: DocGraph -> DocTree
 orderedDFS g = undefined
 
 getDocEnv :: GraphSource -> DocEnv
-getDocEnv s = let fNames = map name $ getFiles s
-                  fContent = map file $ getFiles s
+getDocEnv s = let fNames = map fst $ getFiles s
+                  fContent = map snd $ getFiles s
               in ( M.fromList $ zip fNames [0..]
                  , M.fromList $ zip [0..] fNames
                  , M.fromList $ zip [0..] fContent )
 
-getFiles :: GraphSource -> [DirTree T.Text]
-getFiles = filter isFile . flattenDir . dirTree
+getFiles :: GraphSource -> [(FilePath, T.Text)]
+getFiles = map file . filter isFile . flattenDir . zipPaths
   where isFile (File _ _) = True
         isFile _ = False

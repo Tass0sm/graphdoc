@@ -1,5 +1,5 @@
 module Text.Graphdoc.Graph.Definition
-  ( Edge
+  ( Edge(..)
   , NodeID
   , DocGraph
   , DocTree
@@ -12,7 +12,9 @@ import Data.Tree
 type NodeID = Int
 type NodeContent = Text
 
-data Edge = Up | Fwd | Prev
+data Edge = Up | Fwd | Prev | Other String
+  deriving (Eq, Read, Show)
+
 type DocGraph = Map NodeID [(Edge, NodeID)]
 type DocTree = Tree NodeID
 type DocEnv = ( Map FilePath NodeID
