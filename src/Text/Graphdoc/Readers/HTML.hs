@@ -59,14 +59,15 @@ relativeLink :: T.Text -> Maybe (Edge, FilePath)
 relativeLink t = let (rel, href) = parseLinkLine t
   in case (T.unpack rel) of
        "PREV" -> Just (Prev, T.unpack href)
+       "UP" -> Just (Up, T.unpack href)
+       "NEXT" -> Just (Fwd, T.unpack href)
        otherwise -> Nothing
 
 parseLinkLine :: T.Text -> (T.Text, T.Text)
-parseLinkLine l = runIdentity $ do
-  let relRs = snd $ T.breakOn (T.pack "REL=") l
-  let (rel, hrefRs) = T.breakOn (T.pack " HREF=") relRs
-  let href = fst $ T.breakOn (T.pack ">") hrefRs
-  return (rel, href)
+parseLinkLine l = let relRs = snd $ T.breakOn (T.pack "REL=") l
+                      (rel, hrefRs) = T.breakOn (T.pack " HREF=") relRs
+                      href = fst $ T.breakOn (T.pack ">") hrefRs
+                  in (T.drop 4 rel, T.dropEnd 1 $ T.drop 8 href)
 
 linkLines :: T.Text -> [T.Text]
 linkLines t = Prelude.filter (T.isPrefixOf (T.pack "<LINK")) $ T.lines t
