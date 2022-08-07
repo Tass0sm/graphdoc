@@ -25,7 +25,7 @@ readHTML :: GraphSource -> GraphdocIO Graphdoc
 readHTML s = do
   -- let docEnv = getDocEnv s
   -- let skeleton = runReader getSkeleton docEnv
-  liftIO $ print $ getGraph s
+  liftIO $ putStrLn $ drawTree $ getTree s
   return $ Graphdoc mempty (Node (GraphdocNode (Title mempty) mempty mempty) [])
 
 getSkeleton :: GraphSource -> (Tree T.Text)
@@ -35,7 +35,8 @@ getSkeleton s = let t = getTree s
 getTree :: GraphSource -> Tree FilePath
 getTree s = let g = getGraph s
                 start = getTop g
-            in orderedDFS g start
+                trans = transposeGraph g
+            in orderedDFS trans start
 
 getTop :: M.Map FilePath [(Edge, FilePath)] -> FilePath
 getTop g = let start = head $ M.toList g
