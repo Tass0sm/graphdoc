@@ -14,6 +14,7 @@ import Control.Applicative
 import qualified Data.Map as M
 import qualified Data.Text as T
 import Data.Maybe
+import Data.Tree
 
 pathToID :: FilePath -> Reader DocEnv (Maybe NodeID)
 pathToID p = asks $ lookup1
@@ -27,8 +28,8 @@ idToContent :: NodeID -> Reader DocEnv (Maybe T.Text)
 idToContent i = asks $ lookup3
   where lookup3 (_, _, e) = M.lookup i e
 
-orderedDFS :: DocGraph -> DocTree
-orderedDFS g = undefined
+orderedDFS :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> Tree FilePath
+orderedDFS g s = undefined
 
 getDocEnv :: GraphSource -> DocEnv
 getDocEnv s = let fNames = map fst $ getFiles s

@@ -12,7 +12,7 @@ import Data.Tree
 type NodeID = Int
 type NodeContent = Text
 
-data Edge = Up | Fwd | Prev | Other String
+data Edge = Up | Fwd | Prev | Top | Other String
   deriving (Eq, Read, Show)
 
 type DocGraph = Map NodeID [(Edge, NodeID)]
