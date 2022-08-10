@@ -4,6 +4,11 @@ module Text.Graphdoc.Graph.Utils
   , idToContent
   , transposeGraph
   , orderedDFS
+  , myOrd
+  , succeeds
+  , preceeds
+  , topologicalSort
+  , subgraph
   , getDowns
   , getPrev
   , getPrevs
@@ -57,13 +62,32 @@ localEdges (from, es) = map (addFrom from) es
   where addFrom f (e, to) = (f, e, to)
 
 orderedDFS :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> Tree FilePath
-orderedDFS g s = Node s (map (orderedDFS g) (getDowns g s))
+orderedDFS g s = Node s (map (orderedDFS g) (getOrderedChildren g s))
 
 getOrderedChildren :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> [FilePath]
-getOrderedChildren g s = let c = getChild g s
-                         in case c of
-                              Just f -> getPrevs g f ++ getFwds g f
-                              Nothing -> []
+getOrderedChildren g s = let ds = getDowns g s
+                         in L.sortBy (myOrd g) ds
+
+-- myOrd = M.Map FilePath [(Edge, FilePath)] -> FilePath -> FilePath -> Bool
+myOrd g a b
+  | succeeds g a b = LT
+  | preceeds g a b = GT
+  | otherwise = EQ
+
+preceeds :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> FilePath -> Bool
+preceeds g a b = b `elem` getPrevs g a
+
+succeeds :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> FilePath -> Bool
+succeeds g a b = b `elem` getFwds g a
+
+topologicalSort :: M.Map FilePath [(Edge, FilePath)] -> [FilePath]
+topologicalSort = undefined
+
+subgraph :: M.Map FilePath [(Edge, FilePath)] -> [FilePath] -> M.Map FilePath [(Edge, FilePath)]
+subgraph g vs = M.fromList $ map adjs vs
+  where adjs k = (k, safeEdges (g M.! k))
+        safeEdges es = filter isSafe es
+        isSafe x = (fst x == Fwd) && (snd x `elem` vs)
 
 getDowns :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> [FilePath]
 getDowns g s = case M.lookup s g of
@@ -80,7 +104,10 @@ getFwds g s = let p = getFwd g s
                    Nothing -> []
 
 getFwd :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> Maybe FilePath
-getFwd g s = listToMaybe $ map snd $ filter ((Fwd==) . fst) $ g M.! s
+getFwd g s = let mes = M.lookup s g
+             in case mes of
+                  Just es -> listToMaybe $ map snd $ filter ((Fwd==) . fst) es
+                  Nothing -> Nothing
 
 getPrevs :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> [FilePath]
 getPrevs g s = let p = getPrev g s
@@ -89,7 +116,10 @@ getPrevs g s = let p = getPrev g s
                     Nothing -> [s]
 
 getPrev :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> Maybe FilePath
-getPrev g s = listToMaybe $ map snd $ filter ((Prev==) . fst) $ g M.! s
+getPrev g s = let mes = M.lookup s g
+             in case mes of
+                  Just es -> listToMaybe $ map snd $ filter ((Prev==) . fst) es
+                  Nothing -> Nothing
 
 getChild :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> Maybe FilePath
 getChild g s = let conns = g M.! s
