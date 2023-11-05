@@ -63,6 +63,7 @@ library
                      , pandoc
                      , parsec
                      , mtl
+                     , fgl
 
   -- Directories containing source files.
   hs-source-dirs:      src
