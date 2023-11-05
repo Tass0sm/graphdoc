@@ -2,17 +2,21 @@ module Text.Graphdoc.Readers.HTML
   ( readHTML
   , makeAbsolute
   , getTop
-  , getGraph ) where
+  , getGraph' ) where
 
 import Text.Graphdoc.Definition
 import Text.Graphdoc.Class
+import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Reader
 import Control.Monad.Identity
+import Data.Foldable
 import Data.List
 import Data.Tree
 import Data.Maybe
 import Data.Monoid
+import Data.Graph.Inductive.PatriciaTree
+import qualified Data.Graph.Inductive as FGL
 import qualified Data.Text as T
 import qualified Data.Map as M
 import System.Directory.Tree
@@ -25,32 +29,72 @@ readHTML :: GraphSource -> GraphdocIO Graphdoc
 readHTML s = do
   -- let docEnv = getDocEnv s
   -- let skeleton = runReader getSkeleton docEnv
-  liftIO $ putStrLn $ drawTree $ getTree s
+  liftIO $ putStrLn $ drawTree $ show <$> getTree s
   return $ Graphdoc mempty (Node (GraphdocNode (Title mempty) mempty mempty) [])
 
 getSkeleton :: GraphSource -> (Tree T.Text)
 getSkeleton s = let t = getTree s
                 in fmap undefined t
 
-getTree :: GraphSource -> Tree FilePath
-getTree s = let g = getGraph s
-                start = getTop g
-                trans = transposeGraph g
-            in orderedDFS trans start
+getTree :: GraphSource -> Tree FGL.Node
+getTree s = let g = getGraph' s :: Gr (FilePath, T.Text) Edge
+                start = fromJust $ getTop g
+            in orderedDFS' (transposeGraph g) start
 
-getTop :: M.Map FilePath [(Edge, FilePath)] -> FilePath
-getTop g = let start = head $ M.toList g
-               topEdge = find ((Top==) . fst) $ snd start
-           in fromJust $ snd <$> topEdge
+getTop :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> Maybe FGL.Node
+getTop g = do
+  let goesToTop (_, _, e) = e == Top
+  (_, t, _) <- find goesToTop (FGL.labEdges g)
+  return t
 
-noLinks :: (FilePath, [(Edge, FilePath)]) -> Bool
-noLinks (_, []) = False
-noLinks _ = True
+-- Rewrite:
 
-getGraph :: GraphSource -> M.Map FilePath [(Edge, FilePath)]
-getGraph = M.fromList . filter noLinks . map file . filter isFile . flattenDir . fmap adjacencies . zipPaths
-  where isFile (File _ _) = True
-        isFile _ = False
+type FilePathEnv = M.Map FilePath FGL.Node
+
+getFilePathToNodeMap :: GraphSource -> FilePathEnv
+getFilePathToNodeMap s = M.fromList $ zip (map fst $ toList $ zipPaths s) [1..]
+
+getGraph' :: FGL.DynGraph gr => GraphSource -> gr (FilePath, T.Text) Edge
+getGraph' s = runReader buildGraphM (getFilePathToNodeMap s)
+  where buildGraphM = do
+          let zippedSource = zipPaths s
+          g' <- foldM addNode FGL.empty zippedSource
+          g <- foldM addEdges g' zippedSource
+          return g
+
+addNode :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> (FilePath, T.Text) -> Reader FilePathEnv (gr (FilePath, T.Text) Edge)
+addNode g (p, t) = do
+  mNodeID <- asks $ M.lookup p
+  case mNodeID of
+    Just nodeID -> return $ FGL.insNode (nodeID, (p, t)) g
+    Nothing -> return g
+
+addEdges :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> (FilePath, T.Text) -> Reader FilePathEnv (gr (FilePath, T.Text) Edge)
+addEdges g (p, t) = do
+  edges <- htmlEdges p t
+  return $ FGL.insEdges edges g
+
+htmlEdges :: FilePath -> T.Text -> Reader FilePathEnv [FGL.LEdge Edge]
+htmlEdges p t = do
+  let (s, adjs) = adjacencies (p, t)
+  mSourceID <- asks $ M.lookup s
+  case mSourceID of
+    Just sourceID -> convertAll sourceID adjs
+    Nothing -> return []
+
+convertAll :: FGL.Node -> [(Edge, FilePath)] -> Reader FilePathEnv [FGL.LEdge Edge]
+convertAll s es = do
+  targetNodeIds <- mapM (convertSingle s) es
+  return $ catMaybes targetNodeIds
+
+convertSingle :: FGL.Node -> (Edge, FilePath) -> Reader FilePathEnv (Maybe (FGL.LEdge Edge))
+convertSingle n (e, f) = do
+  mt <- asks $ M.lookup f
+  case mt of
+    Just t -> return $ Just (n, t, e)
+    Nothing -> return Nothing
+
+-- Getting Edges
 
 adjacencies :: (FilePath, T.Text) -> (FilePath, [(Edge, FilePath)])
 adjacencies (p, c) = (p, absoluteLinks (takeDirectory p) c)
@@ -89,3 +133,4 @@ parseLinkLine l = let relRs = snd $ T.breakOn (T.pack "REL=") l
 
 linkLines :: T.Text -> [T.Text]
 linkLines t = Prelude.filter (T.isPrefixOf (T.pack "<LINK")) $ T.lines t
+

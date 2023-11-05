@@ -3,7 +3,7 @@ module Text.Graphdoc.Graph.Utils
   , idToPath
   , idToContent
   , transposeGraph
-  , orderedDFS
+  , orderedDFS'
   , myOrd
   , succeeds
   , preceeds
@@ -14,6 +14,7 @@ module Text.Graphdoc.Graph.Utils
   , getPrevs
   , getFwd
   , getFwds
+  , getOrderedChildren'
   , getOrderedChildren
   , getChild
   , getDocEnv
@@ -26,6 +27,7 @@ import Control.Monad.Reader
 import Control.Applicative
 import qualified Data.Map as M
 import qualified Data.Text as T
+import qualified Data.Graph.Inductive as FGL
 import Data.Maybe
 import Data.Tree
 import qualified Data.List as L
@@ -42,17 +44,25 @@ idToContent :: NodeID -> Reader DocEnv (Maybe T.Text)
 idToContent i = asks $ lookup3
   where lookup3 (_, _, e) = M.lookup i e
 
-transposeGraph :: M.Map FilePath [(Edge, FilePath)] -> M.Map FilePath [(Edge, FilePath)]
-transposeGraph = buildG . map reverseEdge . edges
+transposeGraph :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> gr (FilePath, T.Text) Edge
+transposeGraph = FGL.gmap transposeContext
 
-buildG :: [(FilePath, Edge, FilePath)] -> M.Map FilePath [(Edge, FilePath)]
-buildG es = L.foldl' addEdgeToMap M.empty es
-  where addEdgeToMap m (f, e, t) = M.insertWith (++) f [(e, t)] m
+transposeContext :: FGL.Context (FilePath, T.Text) Edge -> FGL.Context (FilePath, T.Text) Edge
+transposeContext (p,v,l,s) = let (p', s') = transposeAdjs p s
+                             in (p', v, l, s')
 
-reverseEdge :: (FilePath, Edge, FilePath) -> (FilePath, Edge, FilePath)
-reverseEdge (f, Prev, t) = (f, Prev, t)
-reverseEdge (f, Fwd, t) = (f, Fwd, t)
-reverseEdge (f, e, t) = (t, Reverse e, f)
+transposeAdjs :: FGL.Adj Edge -> FGL.Adj Edge -> (FGL.Adj Edge, FGL.Adj Edge)
+transposeAdjs pAdj sAdj = let (spAdj', pAdj') = L.partition toFlip pAdj
+                              (psAdj', sAdj') = L.partition toFlip sAdj
+                          in (pAdj' ++ map reverseEdge psAdj', sAdj' ++ map reverseEdge spAdj')
+
+toFlip :: (Edge, FGL.Node) -> Bool
+toFlip (Prev, _) = False
+toFlip (Fwd, _) = False
+toFlip _ = True
+
+reverseEdge :: (Edge, FGL.Node) -> (Edge, FGL.Node)
+reverseEdge (e, n) = (Reverse e, n)
 
 edges :: M.Map FilePath [(Edge, FilePath)] -> [(FilePath, Edge, FilePath)]
 edges = concat . map localEdges . M.toList
@@ -61,6 +71,22 @@ localEdges :: (FilePath, [(Edge, FilePath)]) -> [(FilePath, Edge, FilePath)]
 localEdges (from, es) = map (addFrom from) es
   where addFrom f (e, to) = (f, e, to)
 
+-- DFS Rewrite:
+
+orderedDFS' :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> FGL.Node -> Tree FGL.Node
+orderedDFS' g s = head $ FGL.xdffWith (getOrderedChildren' g) FGL.node' [s] g
+
+getOrderedChildren' :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> FGL.Context (FilePath, T.Text) Edge -> [FGL.Node]
+getOrderedChildren' g = L.sortBy (myOrd' g) . FGL.suc'
+
+myOrd' :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> FGL.Node -> FGL.Node -> Ordering
+myOrd' g a b
+  | succeeds' g a b = LT
+  | preceeds' g a b = GT
+  | otherwise = EQ
+
+-- Old:
+
 orderedDFS :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> Tree FilePath
 orderedDFS g s = Node s (map (orderedDFS g) (getOrderedChildren g s))
 
@@ -68,7 +94,6 @@ getOrderedChildren :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> [FilePath
 getOrderedChildren g s = let ds = getDowns g s
                          in L.sortBy (myOrd g) ds
 
--- myOrd = M.Map FilePath [(Edge, FilePath)] -> FilePath -> FilePath -> Bool
 myOrd g a b
   | succeeds g a b = LT
   | preceeds g a b = GT
@@ -77,8 +102,14 @@ myOrd g a b
 preceeds :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> FilePath -> Bool
 preceeds g a b = b `elem` getPrevs g a
 
+preceeds' :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> FGL.Node -> FGL.Node -> Bool
+preceeds' g a b = b `elem` getPrevs' g a
+
 succeeds :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> FilePath -> Bool
 succeeds g a b = b `elem` getFwds g a
+
+succeeds' :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> FGL.Node -> FGL.Node -> Bool
+succeeds' g a b = b `elem` getFwds' g a
 
 topologicalSort :: M.Map FilePath [(Edge, FilePath)] -> [FilePath]
 topologicalSort = undefined
@@ -97,6 +128,9 @@ getDowns g s = case M.lookup s g of
 getSiblings :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> [FilePath]
 getSiblings g c = getPrevs g c ++ getFwds g c
 
+getFwds' :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> FGL.Node -> [FGL.Node]
+getFwds' g s = map (\(_, t, _) -> t) $ filter (\(_, _, e) -> e == Fwd) $ FGL.out g s
+
 getFwds :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> [FilePath]
 getFwds g s = let p = getFwd g s
               in case p of
@@ -108,6 +142,9 @@ getFwd g s = let mes = M.lookup s g
              in case mes of
                   Just es -> listToMaybe $ map snd $ filter ((Fwd==) . fst) es
                   Nothing -> Nothing
+
+getPrevs' :: FGL.DynGraph gr => gr (FilePath, T.Text) Edge -> FGL.Node -> [FGL.Node]
+getPrevs' g s = map (\(_, t, _) -> t) $ filter (\(_, _, e) -> e == Prev) $ FGL.out g s
 
 getPrevs :: M.Map FilePath [(Edge, FilePath)] -> FilePath -> [FilePath]
 getPrevs g s = let p = getPrev g s
