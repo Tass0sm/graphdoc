@@ -24,7 +24,7 @@ readBook tree = do
   let summaryFileText = fromMaybe (T.pack "") $ findByPath "./src/SUMMARY.md" tree
   doc <- liftPandocIO $ readMarkdown def summaryFileText
   emptyStructure <- parseSummaryDoc doc
-  fullStructure <- traverse fillContent emptyStructure
+  fullStructure <- undefined -- traverse fillContent emptyStructure
   return $ Graphdoc mempty fullStructure
 
 fillContent :: GraphdocNode -> GraphdocIO GraphdocNode

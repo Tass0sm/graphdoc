@@ -8,3 +8,5 @@ import Text.Graphdoc.Definition
 import Text.Graphdoc.Readers
 import Text.Graphdoc.Writers
 import Text.Graphdoc.Class
+
+import Data.Graph.Inductive
