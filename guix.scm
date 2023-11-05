@@ -1,0 +1,1 @@
+/home/tassos/software/graphdoc/.guix/modules/graphdoc-package.scm
