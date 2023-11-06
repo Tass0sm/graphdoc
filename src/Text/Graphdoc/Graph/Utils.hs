@@ -67,7 +67,7 @@ orderedDFTWith' :: FGL.DynGraph gr => FGL.CFun a GraphdocEdge c -> gr a Graphdoc
 orderedDFTWith' f g s = head $ FGL.xdffWith (getOrderedChildren' g) f [s] g
 
 getOrderedChildren' :: FGL.DynGraph gr => gr a GraphdocEdge -> FGL.Context a GraphdocEdge -> [FGL.Node]
-getOrderedChildren' g = L.sortBy (myOrd' g) . FGL.suc'
+getOrderedChildren' g = L.sortBy (myOrd' g) . map fst . filter ((Reverse Up==) . snd) . FGL.lsuc'
 
 myOrd' :: FGL.DynGraph gr => gr a GraphdocEdge -> FGL.Node -> FGL.Node -> Ordering
 myOrd' g a b
